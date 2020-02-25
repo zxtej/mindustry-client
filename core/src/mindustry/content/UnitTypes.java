@@ -82,7 +82,18 @@ public class UnitTypes implements ContentList{
             mass = 1.75f;
             health = 130;
             weapon = new Weapon("chain-blaster"){{
-                
+                reload = 12f;
+                ejectEffect = Fx.none;
+                shootSound = Sounds.explosion;
+                bullet = new BombBulletType(2f, 3f, "clear"){{
+                    hitEffect = Fx.pulverize;
+                    lifetime = 30f;
+                    speed = 1.1f;
+                    splashDamageRadius = 55f;
+                    instantDisappear = true;
+                    splashDamage = 30f;
+                    killShooter = true;
+                }};
             }};
         }};
 
@@ -120,7 +131,18 @@ public class UnitTypes implements ContentList{
             health = 460;
             immunities.add(StatusEffects.burning);
             weapon = new Weapon("flamethrower"){{
-                bullet = Bullets.lancerLaser;
+                reload = 12f;
+                ejectEffect = Fx.none;
+                shootSound = Sounds.explosion;
+                bullet = new BombBulletType(2f, 3f, "clear"){{
+                    hitEffect = Fx.pulverize;
+                    lifetime = 30f;
+                    speed = 1.1f;
+                    splashDamageRadius = 55f;
+                    instantDisappear = true;
+                    splashDamage = 30f;
+                    killShooter = true;
+                }};
             }};
         }};
 
@@ -134,7 +156,18 @@ public class UnitTypes implements ContentList{
             targetAir = false;
             health = 750;
             weapon = new Weapon("artillery"){{
-                bullet = Bullets.lancerLaser;
+                reload = 12f;
+                ejectEffect = Fx.none;
+                shootSound = Sounds.explosion;
+                bullet = new BombBulletType(2f, 3f, "clear"){{
+                    hitEffect = Fx.pulverize;
+                    lifetime = 30f;
+                    speed = 1.1f;
+                    splashDamageRadius = 55f;
+                    instantDisappear = true;
+                    splashDamage = 30f;
+                    killShooter = true;
+                }};
             }};
         }};
 
@@ -149,7 +182,18 @@ public class UnitTypes implements ContentList{
             health = 600;
             immunities = ObjectSet.with(StatusEffects.burning, StatusEffects.melting);
             weapon = new Weapon("eruption"){{
-                bullet = Bullets.lancerLaser;
+                reload = 12f;
+                ejectEffect = Fx.none;
+                shootSound = Sounds.explosion;
+                bullet = new BombBulletType(2f, 3f, "clear"){{
+                    hitEffect = Fx.pulverize;
+                    lifetime = 30f;
+                    speed = 1.1f;
+                    splashDamageRadius = 55f;
+                    instantDisappear = true;
+                    splashDamage = 30f;
+                    killShooter = true;
+                }};
             }};
         }};
 
@@ -162,7 +206,18 @@ public class UnitTypes implements ContentList{
             rotatespeed = 0.06f;
             health = 3000;
             weapon = new Weapon("chaos"){{
-                bullet = Bullets.lancerLaser;
+                reload = 12f;
+                ejectEffect = Fx.none;
+                shootSound = Sounds.explosion;
+                bullet = new BombBulletType(2f, 3f, "clear"){{
+                    hitEffect = Fx.pulverize;
+                    lifetime = 30f;
+                    speed = 1.1f;
+                    splashDamageRadius = 55f;
+                    instantDisappear = true;
+                    splashDamage = 30f;
+                    killShooter = true;
+                }};
             }};
         }};
 
@@ -175,7 +230,18 @@ public class UnitTypes implements ContentList{
             rotatespeed = 0.06f;
             health = 9000;
             weapon = new Weapon("eradication"){{
-                bullet = Bullets.lancerLaser;
+                reload = 12f;
+                ejectEffect = Fx.none;
+                shootSound = Sounds.explosion;
+                bullet = new BombBulletType(2f, 3f, "clear"){{
+                    hitEffect = Fx.pulverize;
+                    lifetime = 30f;
+                    speed = 1.1f;
+                    splashDamageRadius = 55f;
+                    instantDisappear = true;
+                    splashDamage = 30f;
+                    killShooter = true;
+                }};
             }};
         }};
 
@@ -189,7 +255,18 @@ public class UnitTypes implements ContentList{
             engineOffset = 5.5f;
             range = 140f;
             weapon = new Weapon(){{
-                bullet = Bullets.lancerLaser;
+                reload = 12f;
+                ejectEffect = Fx.none;
+                shootSound = Sounds.explosion;
+                bullet = new BombBulletType(2f, 3f, "clear"){{
+                    hitEffect = Fx.pulverize;
+                    lifetime = 30f;
+                    speed = 1.1f;
+                    splashDamageRadius = 55f;
+                    instantDisappear = true;
+                    splashDamage = 30f;
+                    killShooter = true;
+                }};
             }};
         }};
 
@@ -204,7 +281,18 @@ public class UnitTypes implements ContentList{
             engineOffset = 7.8f;
             range = 140f;
             weapon = new Weapon(){{
-                bullet = Bullets.lancerLaser;
+                reload = 12f;
+                ejectEffect = Fx.none;
+                shootSound = Sounds.explosion;
+                bullet = new BombBulletType(2f, 3f, "clear"){{
+                    hitEffect = Fx.pulverize;
+                    lifetime = 30f;
+                    speed = 1.1f;
+                    splashDamageRadius = 55f;
+                    instantDisappear = true;
+                    splashDamage = 30f;
+                    killShooter = true;
+                }};
             }};
         }};
 
@@ -225,7 +313,18 @@ public class UnitTypes implements ContentList{
             attackLength = 90f;
             baseRotateSpeed = 0.06f;
             weapon = new Weapon("revenant-missiles"){{
-                bullet = Bullets.lancerLaser;
+                reload = 12f;
+                ejectEffect = Fx.none;
+                shootSound = Sounds.explosion;
+                bullet = new BombBulletType(2f, 3f, "clear"){{
+                    hitEffect = Fx.pulverize;
+                    lifetime = 30f;
+                    speed = 1.1f;
+                    splashDamageRadius = 55f;
+                    instantDisappear = true;
+                    splashDamage = 30f;
+                    killShooter = true;
+                }};
             }};
         }};
 
@@ -246,7 +345,18 @@ public class UnitTypes implements ContentList{
             attackLength = 90f;
             baseRotateSpeed = 0.04f;
             weapon = new Weapon("lich-missiles"){{
-                bullet = Bullets.lancerLaser;
+                reload = 12f;
+                ejectEffect = Fx.none;
+                shootSound = Sounds.explosion;
+                bullet = new BombBulletType(2f, 3f, "clear"){{
+                    hitEffect = Fx.pulverize;
+                    lifetime = 30f;
+                    speed = 1.1f;
+                    splashDamageRadius = 55f;
+                    instantDisappear = true;
+                    splashDamage = 30f;
+                    killShooter = true;
+                }};
             }};
         }};
 
@@ -266,7 +376,18 @@ public class UnitTypes implements ContentList{
             rotatespeed = 0.01f;
             baseRotateSpeed = 0.04f;
             weapon = new Weapon("reaper-gun"){{
-
+                reload = 12f;
+                ejectEffect = Fx.none;
+                shootSound = Sounds.explosion;
+                bullet = new BombBulletType(2f, 3f, "clear"){{
+                    hitEffect = Fx.pulverize;
+                    lifetime = 30f;
+                    speed = 1.1f;
+                    splashDamageRadius = 55f;
+                    instantDisappear = true;
+                    splashDamage = 30f;
+                    killShooter = true;
+                }};
             }};
         }};
     }

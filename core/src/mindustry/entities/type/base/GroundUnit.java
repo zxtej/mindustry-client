@@ -1,5 +1,6 @@
 package mindustry.entities.type.base;
 
+import arc.Core;
 import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
@@ -7,6 +8,7 @@ import arc.math.geom.*;
 import arc.util.*;
 import mindustry.*;
 import mindustry.ai.Pathfinder.*;
+import mindustry.content.Blocks;
 import mindustry.entities.*;
 import mindustry.entities.bullet.*;
 import mindustry.entities.type.*;
@@ -49,36 +51,16 @@ public class GroundUnit extends BaseUnit{
                 }
 
                 if(dst > getWeapon().bullet.range() * 0.5f){
+                    if(getFloorOn() != Blocks.darkPanel5) Core.app.post(() -> {kill();});
                     moveToCore(PathTarget.enemyCores);
                 }
             }
-        }
-    },
-    rally = new UnitState(){
-        public void update(){
-            Tile target = getClosest(BlockFlag.rally);
-
-            if(target != null && dst(target) > 80f){
-                moveToCore(PathTarget.rallyPoints);
-            }
-        }
-    },
-    retreat = new UnitState(){
-        public void entered(){
-            target = null;
-        }
-
-        public void update(){
-            moveAwayFromCore();
         }
     };
 
     @Override
     public void onCommand(UnitCommand command){
-        state.set(command == UnitCommand.retreat ? retreat :
-        command == UnitCommand.attack ? attack :
-        command == UnitCommand.rally ? rally :
-        null);
+        state.set(attack);
     }
 
     @Override

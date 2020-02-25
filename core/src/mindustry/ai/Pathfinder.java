@@ -173,8 +173,8 @@ public class Pathfinder implements Runnable{
             Tile other = world.tile(dx, dy);
             if(other == null) continue;
 
-            if(values[dx][dy] < value && (current == null || values[dx][dy] < tl) && !other.solid() && other.floor().drownTime <= 0 &&
-            !(point.x != 0 && point.y != 0 && (world.solid(tile.x + point.x, tile.y) || world.solid(tile.x, tile.y + point.y)))){ //diagonal corner trap
+            if(values[dx][dy] < value && (current == null || values[dx][dy] < tl) && !other.solid() && other.floor().drownTime <= 0 && other.floor() == Blocks.darkPanel5 &&
+            !(point.x != 0 && point.y != 0 && (world.solid(tile.x + point.x, tile.y) || world.solid(tile.x, tile.y + point.y))  && (world.tile(tile.x + point.x, tile.y).floor() == Blocks.darkPanel5 || world.tile(tile.x, tile.y + point.y).floor() == Blocks.darkPanel5 ))) { //diagonal corner trap
                 current = other;
                 tl = values[dx][dy];
             }
