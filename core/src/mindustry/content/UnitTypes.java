@@ -82,11 +82,7 @@ public class UnitTypes implements ContentList{
             mass = 1.75f;
             health = 130;
             weapon = new Weapon("chain-blaster"){{
-                length = 1.5f;
-                reload = 28f;
-                alternate = true;
-                ejectEffect = Fx.shellEjectSmall;
-                bullet = Bullets.standardCopper;
+                bullet = Bullets.lancerLaser;
             }};
         }};
 
@@ -124,13 +120,7 @@ public class UnitTypes implements ContentList{
             health = 460;
             immunities.add(StatusEffects.burning);
             weapon = new Weapon("flamethrower"){{
-                shootSound = Sounds.flame;
-                length = 1f;
-                reload = 14f;
-                alternate = true;
-                recoil = 1f;
-                ejectEffect = Fx.none;
-                bullet = Bullets.basicFlame;
+                bullet = Bullets.lancerLaser;
             }};
         }};
 
@@ -144,15 +134,7 @@ public class UnitTypes implements ContentList{
             targetAir = false;
             health = 750;
             weapon = new Weapon("artillery"){{
-                length = 1f;
-                reload = 60f;
-                width = 10f;
-                alternate = true;
-                recoil = 4f;
-                shake = 2f;
-                ejectEffect = Fx.shellEjectMedium;
-                bullet = Bullets.artilleryUnit;
-                shootSound = Sounds.artillery;
+                bullet = Bullets.lancerLaser;
             }};
         }};
 
@@ -167,14 +149,7 @@ public class UnitTypes implements ContentList{
             health = 600;
             immunities = ObjectSet.with(StatusEffects.burning, StatusEffects.melting);
             weapon = new Weapon("eruption"){{
-                length = 3f;
-                reload = 10f;
-                alternate = true;
-                ejectEffect = Fx.none;
-                bullet = Bullets.eruptorShot;
-                recoil = 1f;
-                width = 7f;
-                shootSound = Sounds.flame;
+                bullet = Bullets.lancerLaser;
             }};
         }};
 
@@ -187,18 +162,7 @@ public class UnitTypes implements ContentList{
             rotatespeed = 0.06f;
             health = 3000;
             weapon = new Weapon("chaos"){{
-                length = 8f;
-                reload = 50f;
-                width = 17f;
-                alternate = true;
-                recoil = 3f;
-                shake = 2f;
-                shots = 4;
-                spacing = 4f;
-                shotDelay = 5;
-                ejectEffect = Fx.shellEjectMedium;
-                bullet = Bullets.flakSurge;
-                shootSound = Sounds.shootBig;
+                bullet = Bullets.lancerLaser;
             }};
         }};
 
@@ -211,19 +175,7 @@ public class UnitTypes implements ContentList{
             rotatespeed = 0.06f;
             health = 9000;
             weapon = new Weapon("eradication"){{
-                length = 13f;
-                reload = 30f;
-                width = 22f;
-                alternate = true;
-                recoil = 3f;
-                shake = 2f;
-                inaccuracy = 3f;
-                shots = 4;
-                spacing = 0f;
-                shotDelay = 3;
-                ejectEffect = Fx.shellEjectMedium;
-                bullet = Bullets.standardThoriumBig;
-                shootSound = Sounds.shootBig;
+                bullet = Bullets.lancerLaser;
             }};
         }};
 
@@ -237,12 +189,7 @@ public class UnitTypes implements ContentList{
             engineOffset = 5.5f;
             range = 140f;
             weapon = new Weapon(){{
-                length = 1.5f;
-                reload = 28f;
-                alternate = true;
-                ejectEffect = Fx.shellEjectSmall;
-                bullet = Bullets.standardCopper;
-                shootSound = Sounds.shoot;
+                bullet = Bullets.lancerLaser;
             }};
         }};
 
@@ -257,16 +204,7 @@ public class UnitTypes implements ContentList{
             engineOffset = 7.8f;
             range = 140f;
             weapon = new Weapon(){{
-                length = 0f;
-                width = 2f;
-                reload = 12f;
-                alternate = true;
-                ejectEffect = Fx.none;
-                velocityRnd = 1f;
-                inaccuracy = 40f;
-                ignoreRotation = true;
-                bullet = Bullets.bombExplosive;
-                shootSound = Sounds.none;
+                bullet = Bullets.lancerLaser;
             }};
         }};
 
@@ -287,17 +225,7 @@ public class UnitTypes implements ContentList{
             attackLength = 90f;
             baseRotateSpeed = 0.06f;
             weapon = new Weapon("revenant-missiles"){{
-                length = 3f;
-                reload = 70f;
-                width = 10f;
-                shots = 2;
-                inaccuracy = 2f;
-                alternate = true;
-                ejectEffect = Fx.none;
-                velocityRnd = 0.2f;
-                spacing = 1f;
-                shootSound = Sounds.missile;
-                bullet = Bullets.missileRevenant;
+                bullet = Bullets.lancerLaser;
             }};
         }};
 
@@ -318,19 +246,7 @@ public class UnitTypes implements ContentList{
             attackLength = 90f;
             baseRotateSpeed = 0.04f;
             weapon = new Weapon("lich-missiles"){{
-                length = 4f;
-                reload = 160f;
-                width = 22f;
-                shots = 16;
-                shootCone = 100f;
-                shotDelay = 2;
-                inaccuracy = 10f;
-                alternate = true;
-                ejectEffect = Fx.none;
-                velocityRnd = 0.2f;
-                spacing = 1f;
-                bullet = Bullets.missileRevenant;
-                shootSound = Sounds.artillery;
+                bullet = Bullets.lancerLaser;
             }};
         }};
 
@@ -350,29 +266,7 @@ public class UnitTypes implements ContentList{
             rotatespeed = 0.01f;
             baseRotateSpeed = 0.04f;
             weapon = new Weapon("reaper-gun"){{
-                length = 3f;
-                reload = 10f;
-                width = 32f;
-                shots = 1;
-                shootCone = 100f;
-
-                shake = 1f;
-                inaccuracy = 3f;
-                alternate = true;
-                ejectEffect = Fx.none;
-                bullet = new BasicBulletType(7f, 42, "bullet"){
-                    {
-                        bulletWidth = 15f;
-                        bulletHeight = 21f;
-                        shootEffect = Fx.shootBig;
-                    }
-
-                    @Override
-                    public float range(){
-                        return 165f;
-                    }
-                };
-                shootSound = Sounds.shootBig;
+                bullet = Bullets.lancerLaser;
             }};
         }};
     }
