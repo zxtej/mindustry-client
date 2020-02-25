@@ -188,11 +188,13 @@ public class ServerControl implements ApplicationListener{
 
         Timer.schedule(() -> {
             Call.onInfoPopup("\uE84F [accent]Unit health multiplier:[lime] " + multiplier + "x", 10f, 20, 50, 20, 260, 0);
+            Call.onInfoPopup("\uE80A [accent]Units get stronger after wave 100", 10f, 20, 50, 20, 290, 0);
+            Call.onInfoPopup("\uE816 [accent]Toggle HUD:[] /hud", 10f, 20, 50, 20, 320, 0);
         }, 0, 10);
 
         Events.on(WaveEvent.class, e -> {
             int wave = state.wave;
-            multiplier = Mathf.clamp((wave/200f), 1.0f, 1000f);
+            multiplier = Mathf.clamp((wave/100f), 1.0f, 1000f);
 
             UnitTypes.crawler.health = unitHp.get(UnitTypes.crawler) * multiplier;
             UnitTypes.dagger.health = unitHp.get(UnitTypes.dagger) * multiplier;
@@ -206,15 +208,7 @@ public class ServerControl implements ApplicationListener{
             UnitTypes.reaper.health = unitHp.get(UnitTypes.reaper) * multiplier;
             UnitTypes.lich.health = unitHp.get(UnitTypes.lich) * multiplier;
         });
-
-        Events.on(UnitCreateEvent.class, e -> {
-            BaseUnit unit = e.unit;
-            if(unit.getTeam() != state.rules.waveTeam) return;
-
-            int wave = state.wave;
-
-            unit.health = unit.maxHealth() + unit.maxHealth() * (wave/200f); // on wave 200 health is doubled, on w400 its quadripled, etc.
-        });
+        
 
         Events.on(UnitKilledEvent.class, e -> {
             BaseUnit unit = e.unit;
@@ -240,7 +234,11 @@ public class ServerControl implements ApplicationListener{
                 }
             }
             String msg = message.toString();
-            Call.onLabel(msg, Strings.stripColors(msg.replaceAll(" ", "")).length() / 5f, unit.x + Mathf.range(2f), unit.y + Mathf.range(2f));
+            for(Player p : playerGroup.all()) {
+                if(p.showHud) {
+                    Call.onLabel(p.con, msg, Strings.stripColors(msg.replaceAll(" ", "")).length() / 5f, unit.x + Mathf.range(2f), unit.y + Mathf.range(2f));
+                }
+            }
         });
 
         if(!mods.list().isEmpty()){
@@ -324,7 +322,7 @@ public class ServerControl implements ApplicationListener{
                 unitDrops.put("dagger", ItemStack.with(Items.copper, 4, Items.lead, 4, Items.silicon, 2, Items.graphite, 1));
                 unitDrops.put("titan", ItemStack.with(Items.graphite, 2, Items.titanium, 2, Items.metaglass, 2));
                 unitDrops.put("fortress", ItemStack.with(Items.copper, 6, Items.lead, 6, Items.silicon, 10, Items.graphite, 5, Items.titanium, 6, Items.thorium, 3));
-                unitDrops.put("eruptor", ItemStack.with(Items.plastanium, 2, Items.lead, 7, Items.silicon, 5));
+                unitDrops.put("eruptor", ItemStack.with(Items.plastanium, 2, Items.lead, 7, Items.silicon, 5, Items.titanium, 5));
                 unitDrops.put("wraith", ItemStack.with(Items.metaglass, 5, Items.silicon, 4));
                 unitDrops.put("ghoul", ItemStack.with(Items.copper, 5, Items.lead, 5, Items.silicon, 5, Items.graphite, 4));
                 unitDrops.put("chaosArray", ItemStack.with(Items.copper, 5, Items.lead, 10, Items.silicon, 25, Items.graphite, 5, Items.titanium, 15, Items.thorium, 5, Items.surgealloy, 2));
