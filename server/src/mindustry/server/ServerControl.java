@@ -299,14 +299,14 @@ public class ServerControl implements ApplicationListener{
                 unitDrops.put("crawler", ItemStack.with(Items.copper, 6, Items.lead, 5));
                 unitDrops.put("dagger", ItemStack.with(Items.copper, 4, Items.lead, 6, Items.silicon, 2, Items.graphite, 1));
                 unitDrops.put("titan", ItemStack.with(Items.graphite, 4, Items.titanium, 4, Items.metaglass, 1));
-                unitDrops.put("fortress", ItemStack.with(Items.copper, 20, Items.lead, 15, Items.silicon, 11, Items.graphite, 5, Items.titanium, 7, Items.thorium, 3));
-                unitDrops.put("eruptor", ItemStack.with(Items.plastanium, 2, Items.lead, 50, Items.silicon, 5));
+                unitDrops.put("fortress", ItemStack.with(Items.copper, 8, Items.lead, 15, Items.silicon, 11, Items.graphite, 5, Items.titanium, 7, Items.thorium, 3));
+                unitDrops.put("eruptor", ItemStack.with(Items.plastanium, 2, Items.lead, 7, Items.silicon, 5));
                 unitDrops.put("wraith", ItemStack.with(Items.metaglass, 5, Items.silicon, 4));
-                unitDrops.put("ghoul", ItemStack.with(Items.copper, 20, Items.lead, 20, Items.silicon, 7, Items.graphite, 12));
-                unitDrops.put("chaosArray", ItemStack.with(Items.copper, 60, Items.lead, 50, Items.silicon, 45, Items.graphite, 20, Items.titanium, 15, Items.thorium, 10, Items.surgealloy, 2));
+                unitDrops.put("ghoul", ItemStack.with(Items.copper, 5, Items.lead, 5, Items.silicon, 5, Items.graphite, 4));
+                unitDrops.put("chaosArray", ItemStack.with(Items.copper, 5, Items.lead, 10, Items.silicon, 25, Items.graphite, 5, Items.titanium, 15, Items.thorium, 5, Items.surgealloy, 2));
                 unitDrops.put("eradicator", ItemStack.with(Items.copper, 420, Items.lead, 300, Items.silicon, 400, Items.graphite, 200, Items.titanium, 120, Items.thorium, 50, Items.phasefabric, 30, Items.surgealloy, 25));
                 unitDrops.put("revenant", ItemStack.with(Items.plastanium, 15, Items.phasefabric, 4, Items.surgealloy, 2, Items.silicon, 10, Items.titanium, 15));
-                unitDrops.put("reaper", ItemStack.with(Items.copper, 420, Items.lead, 300, Items.silicon, 400, Items.graphite, 200, Items.titanium, 120, Items.thorium, 50, Items.phasefabric, 30, Items.surgealloy, 25));
+                unitDrops.put("reaper", ItemStack.with(Items.copper, 300, Items.lead, 300, Items.silicon, 120, Items.graphite, 80, Items.titanium, 70, Items.thorium, 30, Items.phasefabric, 20, Items.surgealloy, 10));
                 unitDrops.put("lich", ItemStack.with(Items.metaglass, 75));
 
                 itemIcons.put(Items.copper, "\uF838");
