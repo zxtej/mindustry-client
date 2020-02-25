@@ -8,6 +8,7 @@ import arc.math.geom.*;
 import arc.util.*;
 import arc.util.ArcAnnotate.*;
 import arc.util.async.*;
+import mindustry.content.Blocks;
 import mindustry.game.EventType.*;
 import mindustry.game.*;
 import mindustry.gen.*;
@@ -64,7 +65,7 @@ public class Pathfinder implements Runnable{
 
     /** Packs a tile into its internal representation. */
     private int packTile(Tile tile){
-        return PathTile.get(tile.cost, tile.getTeamID(), (byte)0, !tile.solid() && tile.floor().drownTime <= 0f);
+        return PathTile.get(tile.cost, tile.getTeamID(), (byte)0, !tile.solid() && tile.floor().drownTime <= 0f && tile.floor() == Blocks.darkPanel5);
     }
 
     /** Starts or restarts the pathfinding thread. */
