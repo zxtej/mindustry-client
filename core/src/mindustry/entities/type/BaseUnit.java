@@ -55,9 +55,10 @@ public abstract class BaseUnit extends Unit implements ShooterTrait{
     public static void onUnitDeath(BaseUnit unit){
         if(unit == null) return;
 
-        if(net.server() || !net.active()){
+        /*if(net.server() || !net.active()){
             UnitDrops.dropItems(unit);
-        }
+        }*/
+        Events.fire(new UnitKilledEvent(unit));
 
         unit.onSuperDeath();
         unit.type.deathSound.at(unit);

@@ -45,7 +45,7 @@ public interface MinerTrait extends Entity{
     }
 
     default void updateMining(){
-        Unit unit = (Unit)this;
+        /*Unit unit = (Unit)this;
         Tile tile = getMineTile();
         TileEntity core = unit.getClosestCore();
 
@@ -86,7 +86,7 @@ public interface MinerTrait extends Entity{
                         tile.worldx() + Mathf.range(tilesize / 2f),
                         tile.worldy() + Mathf.range(tilesize / 2f), 0f, item.color);
             }
-        }
+        }*/
     }
 
     default void drawMining(){

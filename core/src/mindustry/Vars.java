@@ -11,6 +11,8 @@ import arc.util.*;
 import arc.util.Log.*;
 import arc.util.io.*;
 import mindustry.ai.*;
+import mindustry.content.Items;
+import mindustry.content.UnitTypes;
 import mindustry.core.*;
 import mindustry.entities.*;
 import mindustry.entities.effect.*;
@@ -24,6 +26,7 @@ import mindustry.maps.*;
 import mindustry.mod.*;
 import mindustry.net.Net;
 import mindustry.net.*;
+import mindustry.type.ItemStack;
 import mindustry.world.blocks.defense.ForceProjector.*;
 
 import java.io.*;
