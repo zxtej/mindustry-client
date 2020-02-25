@@ -9,6 +9,7 @@ import mindustry.gen.Call;
 import mindustry.type.Item;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import static mindustry.Vars.*;
 
@@ -36,8 +37,10 @@ public class UnitDrops{
 
 
         for(int i = 0; i < 3; i++){
-            for(Item item : drops){ // TODO: make this entryset loop, use chance & item.
-                if(Mathf.chance(0.03)){
+            for(Map.Entry<Item, Float> es : drops.entrySet()){
+                Item item = es.getKey();
+                float chance = es.getValue();
+                if(Mathf.chance(chance)){
                     int amount = Mathf.random(1, 40);
                     amount = core.tile.block().acceptStack(item, amount, core.tile, null);
                     if(amount > 0){
