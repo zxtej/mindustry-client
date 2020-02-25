@@ -188,13 +188,13 @@ public class ServerControl implements ApplicationListener{
 
         Timer.schedule(() -> {
             Call.onInfoPopup("\uE84F [accent]Unit health multiplier:[lime] " + multiplier + "x", 10f, 20, 50, 20, 260, 0);
-            Call.onInfoPopup("\uE80A [accent]Units get stronger after wave 100", 10f, 20, 50, 20, 290, 0);
+            Call.onInfoPopup("\uE80A [accent]Units get stronger after wave 50", 10f, 20, 50, 20, 290, 0);
             Call.onInfoPopup("\uE816 [accent]Toggle HUD:[] /hud", 10f, 20, 50, 20, 320, 0);
         }, 0, 10);
 
         Events.on(WaveEvent.class, e -> {
             int wave = state.wave;
-            multiplier = Mathf.clamp((wave/100f), 1.0f, 1000f);
+            multiplier = Mathf.clamp((wave/50f), 1.0f, 1000f);
 
             UnitTypes.crawler.health = unitHp.get(UnitTypes.crawler) * multiplier;
             UnitTypes.dagger.health = unitHp.get(UnitTypes.dagger) * multiplier;
@@ -208,7 +208,7 @@ public class ServerControl implements ApplicationListener{
             UnitTypes.reaper.health = unitHp.get(UnitTypes.reaper) * multiplier;
             UnitTypes.lich.health = unitHp.get(UnitTypes.lich) * multiplier;
         });
-        
+
 
         Events.on(UnitKilledEvent.class, e -> {
             BaseUnit unit = e.unit;
