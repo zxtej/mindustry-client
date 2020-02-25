@@ -82,7 +82,7 @@ public class UnitTypes implements ContentList{
             mass = 1.75f;
             health = 130;
             weapon = new Weapon("chain-blaster"){{
-                bullet = Bullets.lancerLaser;
+                
             }};
         }};
 
@@ -266,7 +266,7 @@ public class UnitTypes implements ContentList{
             rotatespeed = 0.01f;
             baseRotateSpeed = 0.04f;
             weapon = new Weapon("reaper-gun"){{
-                bullet = Bullets.lancerLaser;
+
             }};
         }};
     }
