@@ -66,7 +66,10 @@ public class ServerControl implements ApplicationListener{
     private PrintWriter socketOutput;
 
     private static HashMap<String, ItemStack[]> unitDrops = new HashMap<>();
+    private static HashMap<UnitType, Float> unitHp = new HashMap<>();
     private static HashMap<Item, String> itemIcons = new HashMap<>();
+    private static float multiplier = 1.0f;
+
 
     public ServerControl(String[] args){
         Core.settings.defaults(
@@ -183,6 +186,27 @@ public class ServerControl implements ApplicationListener{
             }
         });
 
+        Timer.schedule(() -> {
+            Call.onInfoPopup("\uE84F [accent]Unit health multiplier:[lime] " + multiplier + "x", 10f, 20, 50, 20, 260, 0);
+        }, 0, 10);
+
+        Events.on(WaveEvent.class, e -> {
+            int wave = state.wave;
+            multiplier = Mathf.clamp((wave/200f), 1.0f, 1000f);
+
+            UnitTypes.crawler.health = unitHp.get(UnitTypes.crawler) * multiplier;
+            UnitTypes.dagger.health = unitHp.get(UnitTypes.dagger) * multiplier;
+            UnitTypes.titan.health = unitHp.get(UnitTypes.titan) * multiplier;
+            UnitTypes.fortress.health = unitHp.get(UnitTypes.fortress) * multiplier;
+            UnitTypes.eruptor.health = unitHp.get(UnitTypes.eruptor) * multiplier;
+            UnitTypes.wraith.health = unitHp.get(UnitTypes.wraith) * multiplier;
+            UnitTypes.ghoul.health = unitHp.get(UnitTypes.ghoul) * multiplier;
+            UnitTypes.chaosArray.health = unitHp.get(UnitTypes.chaosArray) * multiplier;
+            UnitTypes.revenant.health = unitHp.get(UnitTypes.revenant) * multiplier;
+            UnitTypes.reaper.health = unitHp.get(UnitTypes.reaper) * multiplier;
+            UnitTypes.lich.health = unitHp.get(UnitTypes.lich) * multiplier;
+        });
+
         Events.on(UnitCreateEvent.class, e -> {
             BaseUnit unit = e.unit;
             if(unit.getTeam() != state.rules.waveTeam) return;
@@ -296,10 +320,10 @@ public class ServerControl implements ApplicationListener{
                 state.rules = result.applyRules(preset);
                 logic.play();
 
-                unitDrops.put("crawler", ItemStack.with(Items.copper, 6, Items.lead, 5));
-                unitDrops.put("dagger", ItemStack.with(Items.copper, 4, Items.lead, 6, Items.silicon, 2, Items.graphite, 1));
-                unitDrops.put("titan", ItemStack.with(Items.graphite, 4, Items.titanium, 4, Items.metaglass, 1));
-                unitDrops.put("fortress", ItemStack.with(Items.copper, 8, Items.lead, 15, Items.silicon, 11, Items.graphite, 5, Items.titanium, 7, Items.thorium, 3));
+                unitDrops.put("crawler", ItemStack.with(Items.copper, 2, Items.lead, 2));
+                unitDrops.put("dagger", ItemStack.with(Items.copper, 4, Items.lead, 4, Items.silicon, 2, Items.graphite, 1));
+                unitDrops.put("titan", ItemStack.with(Items.graphite, 2, Items.titanium, 2, Items.metaglass, 2));
+                unitDrops.put("fortress", ItemStack.with(Items.copper, 6, Items.lead, 6, Items.silicon, 10, Items.graphite, 5, Items.titanium, 6, Items.thorium, 3));
                 unitDrops.put("eruptor", ItemStack.with(Items.plastanium, 2, Items.lead, 7, Items.silicon, 5));
                 unitDrops.put("wraith", ItemStack.with(Items.metaglass, 5, Items.silicon, 4));
                 unitDrops.put("ghoul", ItemStack.with(Items.copper, 5, Items.lead, 5, Items.silicon, 5, Items.graphite, 4));
@@ -308,6 +332,18 @@ public class ServerControl implements ApplicationListener{
                 unitDrops.put("revenant", ItemStack.with(Items.plastanium, 15, Items.phasefabric, 4, Items.surgealloy, 2, Items.silicon, 10, Items.titanium, 15));
                 unitDrops.put("reaper", ItemStack.with(Items.copper, 300, Items.lead, 300, Items.silicon, 120, Items.graphite, 80, Items.titanium, 70, Items.thorium, 30, Items.phasefabric, 20, Items.surgealloy, 10));
                 unitDrops.put("lich", ItemStack.with(Items.metaglass, 75));
+
+                unitHp.put(UnitTypes.crawler, UnitTypes.crawler.health);
+                unitHp.put(UnitTypes.dagger, UnitTypes.dagger.health);
+                unitHp.put(UnitTypes.titan, UnitTypes.titan.health);
+                unitHp.put(UnitTypes.fortress, UnitTypes.fortress.health);
+                unitHp.put(UnitTypes.eruptor, UnitTypes.eruptor.health);
+                unitHp.put(UnitTypes.wraith, UnitTypes.wraith.health);
+                unitHp.put(UnitTypes.ghoul, UnitTypes.ghoul.health);
+                unitHp.put(UnitTypes.chaosArray, UnitTypes.chaosArray.health);
+                unitHp.put(UnitTypes.revenant, UnitTypes.revenant.health);
+                unitHp.put(UnitTypes.reaper, UnitTypes.reaper.health);
+                unitHp.put(UnitTypes.lich, UnitTypes.lich.health);
 
                 itemIcons.put(Items.copper, "\uF838");
                 itemIcons.put(Items.lead, "\uF837");
