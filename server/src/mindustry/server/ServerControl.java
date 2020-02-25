@@ -199,12 +199,8 @@ public class ServerControl implements ApplicationListener{
             ItemStack[] is = unitDrops.get(unit.getType().name);
             TileEntity core = unit.getClosestEnemyCore();
 
-            Log.info(is);
-            Log.info(core);
-
             if(is == null || core == null) return;
 
-            Log.info("looping");
             StringBuilder message = new StringBuilder();
             for(ItemStack stack : is){
                 Item item = stack.item;
@@ -221,7 +217,6 @@ public class ServerControl implements ApplicationListener{
             }
             String msg = message.toString();
             Call.onLabel(msg, Strings.stripColors(msg.replaceAll(" ", "")).length() / 5f, unit.x + Mathf.range(2f), unit.y + Mathf.range(2f));
-            Log.info("done");
         });
 
         if(!mods.list().isEmpty()){
@@ -301,11 +296,11 @@ public class ServerControl implements ApplicationListener{
                 state.rules = result.applyRules(preset);
                 logic.play();
 
-                unitDrops.put("crawler", ItemStack.with(Items.copper, 10, Items.lead, 10));
-                unitDrops.put("dagger", ItemStack.with(Items.copper, 10, Items.lead, 10, Items.silicon, 4, Items.graphite, 2));
-                unitDrops.put("titan", ItemStack.with(Items.graphite, 8, Items.titanium, 2));
-                unitDrops.put("fortress", ItemStack.with(Items.copper, 30, Items.lead, 25, Items.silicon, 22, Items.graphite, 10, Items.titanium, 7, Items.thorium, 5));
-                unitDrops.put("eruptor", ItemStack.with(Items.plastanium, 2, Items.lead, 100, Items.silicon, 5));
+                unitDrops.put("crawler", ItemStack.with(Items.copper, 6, Items.lead, 5));
+                unitDrops.put("dagger", ItemStack.with(Items.copper, 4, Items.lead, 6, Items.silicon, 2, Items.graphite, 1));
+                unitDrops.put("titan", ItemStack.with(Items.graphite, 4, Items.titanium, 4, Items.metaglass, 1));
+                unitDrops.put("fortress", ItemStack.with(Items.copper, 20, Items.lead, 15, Items.silicon, 11, Items.graphite, 5, Items.titanium, 7, Items.thorium, 3));
+                unitDrops.put("eruptor", ItemStack.with(Items.plastanium, 2, Items.lead, 50, Items.silicon, 5));
                 unitDrops.put("wraith", ItemStack.with(Items.metaglass, 5, Items.silicon, 4));
                 unitDrops.put("ghoul", ItemStack.with(Items.copper, 20, Items.lead, 20, Items.silicon, 7, Items.graphite, 12));
                 unitDrops.put("chaosArray", ItemStack.with(Items.copper, 60, Items.lead, 50, Items.silicon, 45, Items.graphite, 20, Items.titanium, 15, Items.thorium, 10, Items.surgealloy, 2));
@@ -336,7 +331,7 @@ public class ServerControl implements ApplicationListener{
                     if (player == null) return true;
 
                     if(action.type == ActionType.placeBlock){
-                        boolean b = action.tile.floor() != Blocks.darkPanel4 && action.tile.floor() != Blocks.darkPanel5;
+                        boolean b = (action.tile.floor() != Blocks.darkPanel4 && action.tile.floor() != Blocks.darkPanel5) || action.block == Blocks.shockMine;
                         if(!b && player.con != null) Call.onInfoToast(player.con, "[accent]You can not build on the enemy path!", 8f);
                         return b;
                     }
