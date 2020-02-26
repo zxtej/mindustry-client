@@ -63,7 +63,6 @@ public class ServerControl implements ApplicationListener{
     private PrintWriter socketOutput;
 
     private static HashMap<String, ItemStack[]> unitDrops = new HashMap<>();
-    private static HashMap<UnitType, Float> unitHp = new HashMap<>();
     private static HashMap<Item, String> itemIcons = new HashMap<>();
 
     String getTrafficlightColor(double value){
@@ -317,18 +316,6 @@ public class ServerControl implements ApplicationListener{
                 unitDrops.put("revenant", ItemStack.with(Items.plastanium, 15, Items.phasefabric, 4, Items.surgealloy, 2, Items.silicon, 10, Items.titanium, 15));
                 unitDrops.put("reaper", ItemStack.with(Items.copper, 300, Items.lead, 300, Items.silicon, 120, Items.graphite, 80, Items.titanium, 70, Items.thorium, 30, Items.phasefabric, 20, Items.surgealloy, 10));
                 unitDrops.put("lich", ItemStack.with(Items.metaglass, 75));
-
-                unitHp.put(UnitTypes.crawler, UnitTypes.crawler.health);
-                unitHp.put(UnitTypes.dagger, UnitTypes.dagger.health);
-                unitHp.put(UnitTypes.titan, UnitTypes.titan.health);
-                unitHp.put(UnitTypes.fortress, UnitTypes.fortress.health);
-                unitHp.put(UnitTypes.eruptor, UnitTypes.eruptor.health);
-                unitHp.put(UnitTypes.wraith, UnitTypes.wraith.health);
-                unitHp.put(UnitTypes.ghoul, UnitTypes.ghoul.health);
-                unitHp.put(UnitTypes.chaosArray, UnitTypes.chaosArray.health);
-                unitHp.put(UnitTypes.revenant, UnitTypes.revenant.health);
-                unitHp.put(UnitTypes.reaper, UnitTypes.reaper.health);
-                unitHp.put(UnitTypes.lich, UnitTypes.lich.health);
 
                 itemIcons.put(Items.copper, "\uF838");
                 itemIcons.put(Items.lead, "\uF837");
