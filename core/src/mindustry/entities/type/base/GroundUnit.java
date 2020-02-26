@@ -155,7 +155,7 @@ public class GroundUnit extends BaseUnit{
 
                 rotate(angleTo(target));
 
-                if(Angles.near(angleTo(target), rotation, 13f) && world.tileWorld(target.getX(), target.getY()).block() instanceof CoreBlock){
+                if(world.tileWorld(target.getX(), target.getY()).block() instanceof CoreBlock){
                     BulletType ammo = getWeapon().bullet;
 
                     Vec2 to = Predict.intercept(GroundUnit.this, target, ammo.speed);
