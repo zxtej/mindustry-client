@@ -17,6 +17,7 @@ import mindustry.game.*;
 import mindustry.type.*;
 import mindustry.world.*;
 import mindustry.world.blocks.*;
+import mindustry.world.blocks.storage.CoreBlock;
 import mindustry.world.meta.*;
 
 import static mindustry.Vars.*;
@@ -154,7 +155,7 @@ public class GroundUnit extends BaseUnit{
 
                 rotate(angleTo(target));
 
-                if(Angles.near(angleTo(target), rotation, 13f)){
+                if(Angles.near(angleTo(target), rotation, 13f) && world.tileWorld(target.getX(), target.getY()).block() instanceof CoreBlock){
                     BulletType ammo = getWeapon().bullet;
 
                     Vec2 to = Predict.intercept(GroundUnit.this, target, ammo.speed);
