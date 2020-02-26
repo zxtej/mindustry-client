@@ -33,7 +33,7 @@ public class FlyingUnit extends BaseUnit{
             }
 
             if(retarget()){
-                targetClosest();
+                //targetClosest();
 
                 if(target == null) targetClosestEnemyFlag(BlockFlag.producer);
                 if(target == null) targetClosestEnemyFlag(BlockFlag.turret);
@@ -74,50 +74,11 @@ public class FlyingUnit extends BaseUnit{
                 moveTo(Vars.state.rules.dropZoneRadius + 120f);
             }
         }
-    },
-    rally = new UnitState(){
-        public void update(){
-            if(retarget()){
-                targetClosestAllyFlag(BlockFlag.rally);
-                targetClosest();
-
-                if(target != null && !Units.invalidateTarget(target, team, x, y)){
-                    setState(attack);
-                    return;
-                }
-
-                if(target == null) target = getSpawner();
-            }
-
-            if(target != null){
-                circle(65f + Mathf.randomSeed(id) * 100);
-            }
-        }
-    },
-    retreat = new UnitState(){
-        public void entered(){
-            target = null;
-        }
-
-        public void update(){
-            if(retarget()){
-                target = getSpawner();
-
-                Tile repair = Geometry.findClosest(x, y, indexer.getAllied(team, BlockFlag.repair));
-                if(repair != null && damaged()) FlyingUnit.this.target = repair.entity;
-                if(target == null) target = getClosestCore();
-            }
-
-            circle(targetHasFlag(BlockFlag.repair) ? 20f : 60f + Mathf.randomSeed(id) * 50, 0.65f * type.speed);
-        }
-    };;
+    };
 
     @Override
     public void onCommand(UnitCommand command){
-        state.set(command == UnitCommand.retreat ? retreat :
-        command == UnitCommand.attack ? attack :
-        command == UnitCommand.rally ? rally :
-        null);
+        state.set(attack);
     }
 
     @Override

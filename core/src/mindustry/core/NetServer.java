@@ -457,6 +457,11 @@ public class NetServer implements ApplicationListener{
             player.showHud = !player.showHud;
             player.sendMessage("[accent]Toggled HUD.");
         });
+
+        /*clientCommands.<Player>register("mult","<number>", "testing only", (args, player) -> {
+            state.multiplier = Float.parseFloat(args[0]);
+            player.sendMessage("[accent]done");
+        });*/
     }
 
     public int votesRequired(){

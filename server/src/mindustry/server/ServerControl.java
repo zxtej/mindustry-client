@@ -28,12 +28,9 @@ import mindustry.maps.Map;
 import mindustry.maps.*;
 import mindustry.maps.Maps.*;
 import mindustry.mod.Mods.*;
-import mindustry.net.Administration;
 import mindustry.net.Administration.*;
 import mindustry.net.Packets.*;
 import mindustry.type.*;
-import mindustry.ui.Fonts;
-import mindustry.world.Tile;
 import mindustry.world.blocks.storage.CoreBlock;
 
 import java.io.*;
@@ -68,8 +65,10 @@ public class ServerControl implements ApplicationListener{
     private static HashMap<String, ItemStack[]> unitDrops = new HashMap<>();
     private static HashMap<UnitType, Float> unitHp = new HashMap<>();
     private static HashMap<Item, String> itemIcons = new HashMap<>();
-    private static float multiplier = 1.0f;
 
+    String getTrafficlightColor(double value){
+        return "#"+Integer.toHexString(java.awt.Color.HSBtoRGB((float)value/3f, 1f, 1f)).substring(2);
+    }
 
     public ServerControl(String[] args){
         Core.settings.defaults(
@@ -146,6 +145,7 @@ public class ServerControl implements ApplicationListener{
 
         Events.on(GameOverEvent.class, event -> {
             if(inExtraRound) return;
+            state.multiplier = 1f;
             if(state.rules.waves){
                 info("&lcGame over! Reached wave &ly{0}&lc with &ly{1}&lc players online on map &ly{2}&lc.", state.wave, playerGroup.size(), Strings.capitalize(world.getMap().name()));
             }else{
@@ -187,26 +187,13 @@ public class ServerControl implements ApplicationListener{
         });
 
         Timer.schedule(() -> {
-            Call.onInfoPopup("\uE84F [accent]Unit health multiplier:[lime] " + multiplier + "x", 10f, 20, 50, 20, 260, 0);
-            Call.onInfoPopup("\uE80A [accent]Units get stronger after wave 50", 10f, 20, 50, 20, 290, 0);
-            Call.onInfoPopup("\uE816 [accent]Toggle HUD:[] /hud", 10f, 20, 50, 20, 320, 0);
+            Call.onInfoPopup("\uE84F [accent]Unit health multiplier:[" + getTrafficlightColor(Mathf.clamp(1f - (state.multiplier / 100f), 0f, 1f)) + "] " + state.multiplier + "x", 10f, 20, 50, 20, 450, 0);
+            Call.onInfoPopup("\uE816 [accent]Toggle HUD:[] /hud", 10f, 20, 50, 20, 480, 0);
         }, 0, 10);
 
         Events.on(WaveEvent.class, e -> {
             int wave = state.wave;
-            multiplier = Mathf.clamp((wave/50f), 1.0f, 1000f);
-
-            UnitTypes.crawler.health = unitHp.get(UnitTypes.crawler) * multiplier;
-            UnitTypes.dagger.health = unitHp.get(UnitTypes.dagger) * multiplier;
-            UnitTypes.titan.health = unitHp.get(UnitTypes.titan) * multiplier;
-            UnitTypes.fortress.health = unitHp.get(UnitTypes.fortress) * multiplier;
-            UnitTypes.eruptor.health = unitHp.get(UnitTypes.eruptor) * multiplier;
-            UnitTypes.wraith.health = unitHp.get(UnitTypes.wraith) * multiplier;
-            UnitTypes.ghoul.health = unitHp.get(UnitTypes.ghoul) * multiplier;
-            UnitTypes.chaosArray.health = unitHp.get(UnitTypes.chaosArray) * multiplier;
-            UnitTypes.revenant.health = unitHp.get(UnitTypes.revenant) * multiplier;
-            UnitTypes.reaper.health = unitHp.get(UnitTypes.reaper) * multiplier;
-            UnitTypes.lich.health = unitHp.get(UnitTypes.lich) * multiplier;
+            state.multiplier = Mathf.clamp((wave/33f), state.multiplier, 1000f);
         });
 
 
@@ -236,7 +223,7 @@ public class ServerControl implements ApplicationListener{
             String msg = message.toString();
             for(Player p : playerGroup.all()) {
                 if(p.showHud) {
-                    Call.onLabel(p.con, msg, Strings.stripColors(msg.replaceAll(" ", "")).length() / 5f, unit.x + Mathf.range(2f), unit.y + Mathf.range(2f));
+                    Call.onLabel(p.con, msg, Strings.stripColors(msg.replaceAll(" ", "")).length() / 8f, unit.x + Mathf.range(2f), unit.y + Mathf.range(2f));
                 }
             }
         });
@@ -318,15 +305,15 @@ public class ServerControl implements ApplicationListener{
                 state.rules = result.applyRules(preset);
                 logic.play();
 
-                unitDrops.put("crawler", ItemStack.with(Items.copper, 2, Items.lead, 2));
-                unitDrops.put("dagger", ItemStack.with(Items.copper, 4, Items.lead, 4, Items.silicon, 2, Items.graphite, 1));
+                unitDrops.put("crawler", ItemStack.with(Items.copper, 2));
+                unitDrops.put("dagger", ItemStack.with(Items.copper, 5, Items.lead, 4, Items.silicon, 2, Items.graphite, 1));
                 unitDrops.put("titan", ItemStack.with(Items.graphite, 2, Items.titanium, 2, Items.metaglass, 2));
                 unitDrops.put("fortress", ItemStack.with(Items.copper, 6, Items.lead, 6, Items.silicon, 10, Items.graphite, 5, Items.titanium, 6, Items.thorium, 3));
                 unitDrops.put("eruptor", ItemStack.with(Items.plastanium, 2, Items.lead, 7, Items.silicon, 5, Items.titanium, 5));
                 unitDrops.put("wraith", ItemStack.with(Items.metaglass, 5, Items.silicon, 4));
                 unitDrops.put("ghoul", ItemStack.with(Items.copper, 5, Items.lead, 5, Items.silicon, 5, Items.graphite, 4));
                 unitDrops.put("chaosArray", ItemStack.with(Items.copper, 5, Items.lead, 10, Items.silicon, 25, Items.graphite, 5, Items.titanium, 15, Items.thorium, 5, Items.surgealloy, 2));
-                unitDrops.put("eradicator", ItemStack.with(Items.copper, 420, Items.lead, 300, Items.silicon, 400, Items.graphite, 200, Items.titanium, 120, Items.thorium, 50, Items.phasefabric, 30, Items.surgealloy, 25));
+                unitDrops.put("eradicator", ItemStack.with(Items.copper, 420, Items.lead, 300, Items.silicon, 40, Items.graphite, 60, Items.titanium, 40, Items.thorium, 20, Items.phasefabric, 5, Items.surgealloy, 2));
                 unitDrops.put("revenant", ItemStack.with(Items.plastanium, 15, Items.phasefabric, 4, Items.surgealloy, 2, Items.silicon, 10, Items.titanium, 15));
                 unitDrops.put("reaper", ItemStack.with(Items.copper, 300, Items.lead, 300, Items.silicon, 120, Items.graphite, 80, Items.titanium, 70, Items.thorium, 30, Items.phasefabric, 20, Items.surgealloy, 10));
                 unitDrops.put("lich", ItemStack.with(Items.metaglass, 75));
