@@ -193,7 +193,7 @@ public class ServerControl implements ApplicationListener{
 
         Events.on(WaveEvent.class, e -> {
             int wave = state.wave;
-            state.multiplier = Mathf.clamp((wave/33f), state.multiplier, 1000f);
+            state.multiplier = Mathf.clamp((wave/33f), state.multiplier, 100000f);
         });
 
 
