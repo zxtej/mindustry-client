@@ -186,7 +186,7 @@ public class ServerControl implements ApplicationListener{
         });
 
         Timer.schedule(() -> {
-            Call.onInfoPopup("\uE84F [accent]Unit health multiplier:[" + getTrafficlightColor(Mathf.clamp(1f - (state.multiplier / 100f), 0f, 1f)) + "] " + state.multiplier + "x", 10f, 20, 50, 20, 450, 0);
+            Call.onInfoPopup("\uE84F [accent]Unit health multiplier:[" + getTrafficlightColor(Mathf.clamp(1f - (state.multiplier / 100f), 0f, 1f)) + "] " + (String.valueOf(state.multiplier).length() > 3 ? String.valueOf(state.multiplier).substring(0, 4) : state.multiplier) + "x", 10f, 20, 50, 20, 450, 0);
             Call.onInfoPopup("\uE816 [accent]Toggle HUD:[] /hud", 10f, 20, 50, 20, 480, 0);
         }, 0, 10);
 
@@ -304,10 +304,10 @@ public class ServerControl implements ApplicationListener{
                 state.rules = result.applyRules(preset);
                 logic.play();
 
-                unitDrops.put("crawler", ItemStack.with(Items.copper, 2));
-                unitDrops.put("dagger", ItemStack.with(Items.copper, 5, Items.lead, 4, Items.silicon, 2, Items.graphite, 1));
+                unitDrops.put("crawler", ItemStack.with(Items.copper, 3));
+                unitDrops.put("dagger", ItemStack.with(Items.copper, 6, Items.lead, 4, Items.silicon, 2, Items.graphite, 1));
                 unitDrops.put("titan", ItemStack.with(Items.graphite, 2, Items.titanium, 2, Items.metaglass, 2));
-                unitDrops.put("fortress", ItemStack.with(Items.copper, 6, Items.lead, 6, Items.silicon, 10, Items.graphite, 5, Items.titanium, 6, Items.thorium, 3));
+                unitDrops.put("fortress", ItemStack.with(Items.copper, 8, Items.lead, 6, Items.silicon, 10, Items.graphite, 5, Items.titanium, 6, Items.thorium, 3));
                 unitDrops.put("eruptor", ItemStack.with(Items.plastanium, 2, Items.lead, 7, Items.silicon, 5, Items.titanium, 5));
                 unitDrops.put("wraith", ItemStack.with(Items.metaglass, 5, Items.silicon, 4));
                 unitDrops.put("ghoul", ItemStack.with(Items.copper, 5, Items.lead, 5, Items.silicon, 5, Items.graphite, 4));
