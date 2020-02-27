@@ -463,7 +463,7 @@ public class NetServer implements ApplicationListener{
     }
 
     public int votesRequired(){
-        return 2 + (playerGroup.size() > 4 ? 1 : 0);
+        return 4 + (playerGroup.size() > 6 ? 1 : 0);
     }
 
     public Team assignTeam(Player current, Iterable<Player> players){
