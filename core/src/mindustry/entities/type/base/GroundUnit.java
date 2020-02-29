@@ -152,8 +152,6 @@ public class GroundUnit extends BaseUnit{
 
         if(!Units.invalidateTarget(target, this)){
             if(target.dst(x, y) < getWeapon().bullet.range()){
-
-                rotate(angleTo(target));
                 BulletType ammo = getWeapon().bullet;
                 Vec2 to = Predict.intercept(GroundUnit.this, target, ammo.speed);
                 getWeapon().update(GroundUnit.this, to.x, to.y);

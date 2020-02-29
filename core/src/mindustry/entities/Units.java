@@ -1,5 +1,6 @@
 package mindustry.entities;
 
+import arc.Core;
 import arc.func.*;
 import arc.math.*;
 import arc.math.geom.*;
@@ -34,7 +35,7 @@ public class Units{
      * @return whether the target is invalid
      */
     public static boolean invalidateTarget(TargetTrait target, Team team, float x, float y, float range){
-        return target == null || (range != Float.MAX_VALUE && !target.withinDst(x, y, range)) || target.getTeam() == team || !target.isValid();
+        return target == null || (range != Float.MAX_VALUE && !target.withinDst(x, y, range)) || target.getTeam() == team || !target.isValid() || !(world.tileWorld(target.getX(), target.getY()).block() instanceof CoreBlock);
     }
 
     /** See {@link #invalidateTarget(TargetTrait, Team, float, float, float)} */
