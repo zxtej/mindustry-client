@@ -7,6 +7,7 @@ import mindustry.entities.traits.*;
 import mindustry.entities.type.*;
 import mindustry.game.*;
 import mindustry.world.*;
+import mindustry.world.blocks.storage.CoreBlock;
 
 import static mindustry.Vars.*;
 
@@ -79,11 +80,11 @@ public class Units{
         return indexer.findTile(team, x, y, range, pred);
     }
 
-    /** Returns the neareset enemy tile in a range. */
+    /** Returns the neareset enemy core tile in a range. */
     public static TileEntity findEnemyTile(Team team, float x, float y, float range, Boolf<Tile> pred){
         if(team == Team.derelict) return null;
-
-        return indexer.findEnemyTile(team, x, y, range, pred);
+        TileEntity ent = indexer.findEnemyTile(team, x, y, range, pred);;
+        return (ent instanceof CoreBlock.CoreEntity ? ent : ent);
     }
 
     /** Returns the closest target enemy. First, units are checked, then tile entities. */
@@ -100,12 +101,12 @@ public class Units{
     public static TargetTrait closestTarget(Team team, float x, float y, float range, Boolf<Unit> unitPred, Boolf<Tile> tilePred){
         if(team == Team.derelict) return null;
 
-        Unit unit = closestEnemy(team, x, y, range, unitPred);
+        /*Unit unit = closestEnemy(team, x, y, range, unitPred);
         if(unit != null){
             return unit;
-        }else{
+        }else{*/
             return findEnemyTile(team, x, y, range, tilePred);
-        }
+        //}
     }
 
     /** Returns the closest enemy of this team. Filter by predicate. */

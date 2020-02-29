@@ -151,8 +151,7 @@ public class GroundUnit extends BaseUnit{
     public void behavior(){
 
         if(!Units.invalidateTarget(target, this)){
-            TileEntity core = getClosestEnemyCore();
-            if(core != null && target.dst(core.x, core.y) < getWeapon().bullet.range()){
+            if(target.dst(x, y) < getWeapon().bullet.range()){
 
                 rotate(angleTo(target));
                 BulletType ammo = getWeapon().bullet;
