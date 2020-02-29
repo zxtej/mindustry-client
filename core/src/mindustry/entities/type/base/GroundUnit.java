@@ -151,17 +151,12 @@ public class GroundUnit extends BaseUnit{
     public void behavior(){
 
         if(!Units.invalidateTarget(target, this)){
-            if(dst(target) < getWeapon().bullet.range()){
+            if(target.dst(getClosestEnemyCore().x, getClosestEnemyCore().y) < getWeapon().bullet.range()){
 
                 rotate(angleTo(target));
-
-                if(world.tileWorld(target.getX(), target.getY()).block() instanceof CoreBlock){
-                    BulletType ammo = getWeapon().bullet;
-
-                    Vec2 to = Predict.intercept(GroundUnit.this, target, ammo.speed);
-
-                    getWeapon().update(GroundUnit.this, to.x, to.y);
-                }
+                BulletType ammo = getWeapon().bullet;
+                Vec2 to = Predict.intercept(GroundUnit.this, target, ammo.speed);
+                getWeapon().update(GroundUnit.this, to.x, to.y);
             }
         }
     }
