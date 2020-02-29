@@ -41,7 +41,7 @@ public interface MinerTrait extends Entity{
 
     /** @return whether to offload mined items immediately at the core. if false, items are collected and dropped in a burst. */
     default boolean offloadImmediately(){
-        return false;
+        return true;
     }
 
     default void updateMining(){
