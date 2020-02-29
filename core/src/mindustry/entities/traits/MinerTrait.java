@@ -41,11 +41,11 @@ public interface MinerTrait extends Entity{
 
     /** @return whether to offload mined items immediately at the core. if false, items are collected and dropped in a burst. */
     default boolean offloadImmediately(){
-        return false;
+        return true;
     }
 
     default void updateMining(){
-        /*Unit unit = (Unit)this;
+        Unit unit = (Unit)this;
         Tile tile = getMineTile();
         TileEntity core = unit.getClosestCore();
 
@@ -66,7 +66,7 @@ public interface MinerTrait extends Entity{
             Item item = tile.drop();
             unit.rotation = Mathf.slerpDelta(unit.rotation, unit.angleTo(tile.worldx(), tile.worldy()), 0.4f);
 
-            if(Mathf.chance(Time.delta() * (0.06 - item.hardness * 0.01) * getMinePower())){
+            if(Mathf.chance(Time.delta() * (0.06 - item.hardness * 0.01) * 0.1)){
 
                 if(unit.dst(core) < mineTransferRange && core.tile.block().acceptStack(item, 1, core.tile, unit) == 1 && offloadImmediately()){
                     Call.transferItemTo(item, 1,
@@ -86,7 +86,7 @@ public interface MinerTrait extends Entity{
                         tile.worldx() + Mathf.range(tilesize / 2f),
                         tile.worldy() + Mathf.range(tilesize / 2f), 0f, item.color);
             }
-        }*/
+        }
     }
 
     default void drawMining(){
