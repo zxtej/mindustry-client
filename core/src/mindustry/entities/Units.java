@@ -3,6 +3,7 @@ package mindustry.entities;
 import arc.func.*;
 import arc.math.*;
 import arc.math.geom.*;
+import mindustry.content.Blocks;
 import mindustry.entities.traits.*;
 import mindustry.entities.type.*;
 import mindustry.game.*;
@@ -84,7 +85,7 @@ public class Units{
     public static TileEntity findEnemyTile(Team team, float x, float y, float range, Boolf<Tile> pred){
         if(team == Team.derelict) return null;
         TileEntity ent = indexer.findEnemyTile(team, x, y, range, pred);;
-        return (ent instanceof CoreBlock.CoreEntity ? ent : ent);
+        return (ent instanceof CoreBlock.CoreEntity && ent.block != Blocks.shockMine ? ent : ent);
     }
 
     /** Returns the closest target enemy. First, units are checked, then tile entities. */
