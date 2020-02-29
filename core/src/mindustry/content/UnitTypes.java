@@ -91,7 +91,7 @@ public class UnitTypes implements ContentList{
                     speed = 1.1f;
                     splashDamageRadius = 55f;
                     instantDisappear = true;
-                    splashDamage = 30f;
+                    splashDamage = 10f;
                     killShooter = true;
                 }};
             }};
@@ -140,7 +140,7 @@ public class UnitTypes implements ContentList{
                     speed = 1.1f;
                     splashDamageRadius = 55f;
                     instantDisappear = true;
-                    splashDamage = 30f;
+                    splashDamage = 60f;
                     killShooter = true;
                 }};
             }};
@@ -191,7 +191,7 @@ public class UnitTypes implements ContentList{
                     speed = 1.1f;
                     splashDamageRadius = 55f;
                     instantDisappear = true;
-                    splashDamage = 30f;
+                    splashDamage = 60f;
                     killShooter = true;
                 }};
             }};
@@ -215,7 +215,7 @@ public class UnitTypes implements ContentList{
                     speed = 1.1f;
                     splashDamageRadius = 55f;
                     instantDisappear = true;
-                    splashDamage = 30f;
+                    splashDamage = 100f;
                     killShooter = true;
                 }};
             }};
@@ -239,7 +239,7 @@ public class UnitTypes implements ContentList{
                     speed = 1.1f;
                     splashDamageRadius = 55f;
                     instantDisappear = true;
-                    splashDamage = 30f;
+                    splashDamage = 300f;
                     killShooter = true;
                 }};
             }};
@@ -264,7 +264,7 @@ public class UnitTypes implements ContentList{
                     speed = 1.1f;
                     splashDamageRadius = 55f;
                     instantDisappear = true;
-                    splashDamage = 30f;
+                    splashDamage = 15f;
                     killShooter = true;
                 }};
             }};
