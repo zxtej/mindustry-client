@@ -304,11 +304,11 @@ public class ServerControl implements ApplicationListener{
                 state.rules = result.applyRules(preset);
                 logic.play();
 
-                unitDrops.put("crawler", ItemStack.with(Items.copper, 3));
-                unitDrops.put("dagger", ItemStack.with(Items.copper, 6, Items.lead, 4, Items.silicon, 2, Items.graphite, 1));
-                unitDrops.put("titan", ItemStack.with(Items.graphite, 2, Items.titanium, 2, Items.metaglass, 2));
+                unitDrops.put("crawler", ItemStack.with(Items.copper, 4, Items.lead, 2));
+                unitDrops.put("dagger", ItemStack.with(Items.copper, 7, Items.lead, 4, Items.silicon, 2, Items.graphite, 2));
+                unitDrops.put("titan", ItemStack.with(Items.graphite, 3, Items.titanium, 2, Items.metaglass, 2));
                 unitDrops.put("fortress", ItemStack.with(Items.copper, 8, Items.lead, 6, Items.silicon, 10, Items.graphite, 5, Items.titanium, 6, Items.thorium, 3));
-                unitDrops.put("eruptor", ItemStack.with(Items.copper, 4, Items.plastanium, 2, Items.lead, 3, Items.silicon, 5, Items.titanium, 5));
+                unitDrops.put("eruptor", ItemStack.with(Items.copper, 4, Items.plastanium, 2, Items.lead, 3, Items.silicon, 5, Items.titanium, 5, Items.graphite, 3));
                 unitDrops.put("wraith", ItemStack.with(Items.metaglass, 5, Items.silicon, 4));
                 unitDrops.put("ghoul", ItemStack.with(Items.copper, 5, Items.lead, 5, Items.silicon, 5, Items.graphite, 4));
                 unitDrops.put("chaosArray", ItemStack.with(Items.copper, 5, Items.lead, 10, Items.silicon, 25, Items.graphite, 5, Items.titanium, 15, Items.thorium, 5, Items.surgealloy, 2));
