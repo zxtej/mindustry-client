@@ -322,7 +322,7 @@ public class UnitTypes implements ContentList{
                     speed = 1.1f;
                     splashDamageRadius = 55f;
                     instantDisappear = true;
-                    splashDamage = 30f;
+                    splashDamage = 60f;
                     killShooter = true;
                 }};
             }};
@@ -354,7 +354,7 @@ public class UnitTypes implements ContentList{
                     speed = 1.1f;
                     splashDamageRadius = 55f;
                     instantDisappear = true;
-                    splashDamage = 30f;
+                    splashDamage = 150f;
                     killShooter = true;
                 }};
             }};
@@ -385,7 +385,7 @@ public class UnitTypes implements ContentList{
                     speed = 1.1f;
                     splashDamageRadius = 55f;
                     instantDisappear = true;
-                    splashDamage = 30f;
+                    splashDamage = 200f;
                     killShooter = true;
                 }};
             }};
