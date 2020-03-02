@@ -403,6 +403,7 @@ public class NetServer implements ApplicationListener{
                         VoteSession session = new VoteSession(currentlyKicking, found, found.getTeam());
                         found.setTeam(Team.derelict);
                         found.setDead(true);
+                        found.spawner = null;
 
                         found.sendMessage("[accent]You are being vote kicked. You will be able to build once the session is over.");
                         session.vote(player, 1);
