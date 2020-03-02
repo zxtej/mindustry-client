@@ -1,15 +1,12 @@
 package mindustry.entities;
 
-import arc.Core;
 import arc.func.*;
 import arc.math.*;
 import arc.math.geom.*;
-import mindustry.content.Blocks;
 import mindustry.entities.traits.*;
 import mindustry.entities.type.*;
 import mindustry.game.*;
 import mindustry.world.*;
-import mindustry.world.blocks.storage.CoreBlock;
 
 import static mindustry.Vars.*;
 
@@ -29,17 +26,13 @@ public class Units{
      * Validates a target.
      * @param target The target to validate
      * @param team The team of the thing doing tha targeting
-     * @param x The X position of the thing doign the targeting
-     * @param y The Y position of the thing doign the targeting
+     * @param x The X position of the thing doing the targeting
+     * @param y The Y position of the thing doing the targeting
      * @param range The maximum distance from the target X/Y the targeter can be for it to be valid
      * @return whether the target is invalid
      */
     public static boolean invalidateTarget(TargetTrait target, Team team, float x, float y, float range){
-        if(target == null) return false;
-        Tile tile = world.tileWorld(target.getX(), target.getY());
-        if(tile == null) return false;
-        Block block = tile.block();
-        return (range != Float.MAX_VALUE && !target.withinDst(x, y, range)) || target.getTeam() == team || !target.isValid() || (block instanceof CoreBlock);
+        return target == null || (range != Float.MAX_VALUE && !target.withinDst(x, y, range)) || target.getTeam() == team || !target.isValid();
     }
 
     /** See {@link #invalidateTarget(TargetTrait, Team, float, float, float)} */
@@ -86,11 +79,11 @@ public class Units{
         return indexer.findTile(team, x, y, range, pred);
     }
 
-    /** Returns the neareset enemy core tile in a range. */
+    /** Returns the neareset enemy tile in a range. */
     public static TileEntity findEnemyTile(Team team, float x, float y, float range, Boolf<Tile> pred){
         if(team == Team.derelict) return null;
-        TileEntity ent = indexer.findEnemyTile(team, x, y, range, pred);;
-        return (ent instanceof CoreBlock.CoreEntity && ent.block != Blocks.shockMine ? ent : ent);
+
+        return indexer.findEnemyTile(team, x, y, range, pred);
     }
 
     /** Returns the closest target enemy. First, units are checked, then tile entities. */
@@ -107,12 +100,8 @@ public class Units{
     public static TargetTrait closestTarget(Team team, float x, float y, float range, Boolf<Unit> unitPred, Boolf<Tile> tilePred){
         if(team == Team.derelict) return null;
 
-        /*Unit unit = closestEnemy(team, x, y, range, unitPred);
-        if(unit != null){
-            return unit;
-        }else{*/
-            return findEnemyTile(team, x, y, range, tilePred);
-        //}
+        //Unit unit = closestEnemy(team, x, y, range, unitPred);
+        return findEnemyTile(team, x, y, range, tilePred);
     }
 
     /** Returns the closest enemy of this team. Filter by predicate. */
