@@ -33,7 +33,7 @@ public class GroundUnit extends BaseUnit{
 
     attack = new UnitState(){
         public void entered(){
-            target = null;
+            target = getClosestEnemyCore();
         }
 
         public void update(){
@@ -46,10 +46,6 @@ public class GroundUnit extends BaseUnit{
                 }
             }else{
                 float dst = dst(core);
-
-                if(dst < getWeapon().bullet.range() / 1.1f){
-                    target = core;
-                }
 
                 if(dst > getWeapon().bullet.range() * 0.5f){
                     if(getFloorOn() != Blocks.darkPanel5) Core.app.post(() -> {kill();});
@@ -164,7 +160,7 @@ public class GroundUnit extends BaseUnit{
         super.updateTargeting();
 
         if(Units.invalidateTarget(target, team, x, y, Float.MAX_VALUE)){
-            target = null;
+            target = getClosestEnemyCore();
         }
 
         if(retarget()){
