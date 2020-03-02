@@ -27,20 +27,8 @@ public class FlyingUnit extends BaseUnit{
         }
 
         public void update(){
-
-            if(Units.invalidateTarget(target, team, x, y)){
-                target = null;
-            }
-
             if(retarget()){
-                //targetClosest();
-
-                if(target == null) targetClosestEnemyFlag(BlockFlag.producer);
-                if(target == null) targetClosestEnemyFlag(BlockFlag.turret);
-
-                if(target == null && isCommanded() && getCommand() != UnitCommand.attack){
-                    onCommand(getCommand());
-                }
+                if (target == null) getClosestEnemyCore();
             }
 
             if(getClosestSpawner() == null && getSpawner() != null && target == null){
@@ -155,7 +143,7 @@ public class FlyingUnit extends BaseUnit{
         y += Mathf.cos(Time.time() + id * 999, 25f, 0.05f) * Time.delta();
 
         if(velocity.len() <= 0.05f){
-            //rotation += Mathf.sin(Time.time() + id * 99, 10f, 2f * type.speed)*Time.delta();
+            rotation += Mathf.sin(Time.time() + id * 99, 10f, 2f * type.speed)*Time.delta();
         }
     }
 
