@@ -23,7 +23,7 @@ public class FlyingUnit extends BaseUnit{
 
     attack = new UnitState(){
         public void entered(){
-            target = null;
+            target = getClosestEnemyCore();
         }
 
         public void update(){
@@ -44,7 +44,7 @@ public class FlyingUnit extends BaseUnit{
             }
 
             if(getClosestSpawner() == null && getSpawner() != null && target == null){
-                target = getSpawner();
+                target = getClosestEnemyCore();
                 circle(80f + Mathf.randomSeed(id) * 120);
             }else if(target != null){
                 attack(type.attackLength);
@@ -70,7 +70,7 @@ public class FlyingUnit extends BaseUnit{
                     }
                 }
             }else{
-                target = getClosestSpawner();
+                target = getClosestEnemyCore();
                 moveTo(Vars.state.rules.dropZoneRadius + 120f);
             }
         }

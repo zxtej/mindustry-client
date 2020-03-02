@@ -146,13 +146,13 @@ public class GroundUnit extends BaseUnit{
     @Override
     public void behavior(){
 
-        if(!Units.invalidateTarget(target, this)){
+        //if(!Units.invalidateTarget(target, this)){
             if(target.dst(x, y) < getWeapon().bullet.range()){
                 BulletType ammo = getWeapon().bullet;
                 Vec2 to = Predict.intercept(GroundUnit.this, target, ammo.speed);
                 getWeapon().update(GroundUnit.this, to.x, to.y);
             }
-        }
+        //}
     }
 
     @Override

@@ -35,8 +35,11 @@ public class Units{
      * @return whether the target is invalid
      */
     public static boolean invalidateTarget(TargetTrait target, Team team, float x, float y, float range){
-        Block block = world.tileWorld(target.getX(), target.getY()).block();
-        return target == null || (range != Float.MAX_VALUE && !target.withinDst(x, y, range)) || target.getTeam() == team || !target.isValid() || (block instanceof CoreBlock);
+        if(target == null) return false;
+        Tile tile = world.tileWorld(target.getX(), target.getY());
+        if(tile == null) return false;
+        Block block = tile.block();
+        return (range != Float.MAX_VALUE && !target.withinDst(x, y, range)) || target.getTeam() == team || !target.isValid() || (block instanceof CoreBlock);
     }
 
     /** See {@link #invalidateTarget(TargetTrait, Team, float, float, float)} */
