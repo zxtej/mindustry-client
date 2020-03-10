@@ -17,6 +17,7 @@ import mindustry.content.*;
 import mindustry.core.*;
 import mindustry.ctype.ContentType;
 import mindustry.entities.*;
+import mindustry.entities.bullet.BulletType;
 import mindustry.entities.traits.*;
 import mindustry.game.*;
 import mindustry.gen.*;
@@ -34,6 +35,7 @@ import java.io.*;
 import static mindustry.Vars.*;
 
 public class Player extends Unit implements BuilderMinerTrait, ShooterTrait{
+
     public static final int timerSync = 2;
     public static final int timerAbility = 3;
     private static final int timerShootLeft = 0;
@@ -43,6 +45,17 @@ public class Player extends Unit implements BuilderMinerTrait, ShooterTrait{
     private static final Rect rect = new Rect();
 
     //region instance variables
+
+    public String tag = "";
+    public Boolean doRainbow = false;
+    public Boolean doTrail = false;
+    public int hue;
+    public BulletType bt;
+    public float sclLifetime = 1f;
+    public float sclVelocity = 1f;
+    public String origName;
+    public Effects.Effect trailFx = Fx.shootLiquid;
+    public String passPhrase = "";
 
     public float baseRotation;
     public float pointerX, pointerY;
@@ -57,6 +70,7 @@ public class Player extends Unit implements BuilderMinerTrait, ShooterTrait{
     public Mech mech = Mechs.starter;
     public SpawnerTrait spawner, lastSpawner;
     public int respawns;
+
 
     public @Nullable NetConnection con;
     public boolean isLocal = false;

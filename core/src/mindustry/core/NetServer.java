@@ -310,14 +310,18 @@ public class NetServer implements ApplicationListener{
             ObjectSet<String> voted = new ObjectSet<>();
             VoteSession[] map;
             Timer.Task task;
+            Team team;
             int votes;
 
-            public VoteSession(VoteSession[] map, Player target){
+            public VoteSession(VoteSession[] map, Player target, Team team){
                 this.target = target;
                 this.map = map;
+                this.team = team;
                 this.task = Timer.schedule(() -> {
                     if(!checkPass()){
                         Call.sendMessage(Strings.format("[lightgray]Vote failed. Not enough votes to kick[orange] {0}[lightgray].", target.name));
+                        target.setTeam(team);
+                        target.setDead(false);
                         map[0] = null;
                         task.cancel();
                     }
@@ -355,8 +359,8 @@ public class NetServer implements ApplicationListener{
                 return;
             }
 
-            if(playerGroup.size() < 3){
-                player.sendMessage("[scarlet]At least 3 players are needed to start a votekick.");
+            if(playerGroup.size() < 5){
+                player.sendMessage("[scarlet]At least 5 players are needed to start a votekick.");
                 return;
             }
 
@@ -396,7 +400,12 @@ public class NetServer implements ApplicationListener{
                             return;
                         }
 
-                        VoteSession session = new VoteSession(currentlyKicking, found);
+                        VoteSession session = new VoteSession(currentlyKicking, found, found.getTeam());
+                        found.setTeam(Team.derelict);
+                        found.setDead(true);
+                        found.spawner = null;
+
+                        found.sendMessage("[accent]You are being vote kicked. You will be able to build once the session is over.");
                         session.vote(player, 1);
                         vtime.reset();                  
                         currentlyKicking[0] = session;
@@ -465,7 +474,7 @@ public class NetServer implements ApplicationListener{
     }
 
     public int votesRequired(){
-        return 2 + (playerGroup.size() > 4 ? 1 : 0);
+        return 4 + (playerGroup.size() > 6 ? 1 : 0);
     }
 
     public Team assignTeam(Player current, Iterable<Player> players){
