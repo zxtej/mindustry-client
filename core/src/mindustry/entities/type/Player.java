@@ -54,6 +54,8 @@ public class Player extends Unit implements BuilderMinerTrait, ShooterTrait{
     public float sclLifetime = 1f;
     public float sclVelocity = 1f;
     public String origName;
+    public Effects.Effect trailFx = Fx.shootLiquid;
+    public String passPhrase = "";
 
     public float baseRotation;
     public float pointerX, pointerY;
