@@ -37,6 +37,7 @@ public class NetClient implements ApplicationListener{
     private final static float dataTimeout = 60 * 18;
     private final static float playerSyncTime = 2;
     public final static float viewScale = 2f;
+    public static boolean chatEnabled = true;
 
     private long ping;
     private Interval timer = new Interval(5);
@@ -182,7 +183,11 @@ public class NetClient implements ApplicationListener{
 
             //invoke event for all clients but also locally
             //this is required so other clients get the correct name even if they don't know who's sending it yet
-            Call.sendMessage(message, player.tag + colorizeName(player.id, player.name), player);
+            if(chatEnabled) {
+                Call.sendMessage(message, player.tag + colorizeName(player.id, player.name), player);
+            } else{
+                Call.onInfoToast(player.con, "[#474747]\uE837 The chat is currently disabled.", 5f);
+            }
         }else{
             //log command to console but with brackets
             Log.info("<&y{0}: &lm{1}&lg>", player.name, message);
