@@ -37,7 +37,6 @@ public class NetClient implements ApplicationListener{
     private final static float dataTimeout = 60 * 18;
     private final static float playerSyncTime = 2;
     public final static float viewScale = 2f;
-    public static boolean chatEnabled = true;
 
     private long ping;
     private Interval timer = new Interval(5);
@@ -134,10 +133,6 @@ public class NetClient implements ApplicationListener{
         });
     }
 
-    public void setChatEnabled(boolean to){
-        chatEnabled = to;
-    }
-
     //called on all clients
     @Remote(targets = Loc.server, variants = Variant.both)
     public static void sendMessage(String message, String sender, Player playersender){
@@ -187,7 +182,7 @@ public class NetClient implements ApplicationListener{
 
             //invoke event for all clients but also locally
             //this is required so other clients get the correct name even if they don't know who's sending it yet
-            if(chatEnabled || player.isAdmin) {
+            if(state.rules.playerDamageMultiplier > 0f || player.isAdmin) {
                 Call.sendMessage(message, player.tag + colorizeName(player.id, player.name), player);
             } else{
                 Call.onInfoToast(player.con, "[#474747]\uE837 The chat is currently disabled.", 5f);

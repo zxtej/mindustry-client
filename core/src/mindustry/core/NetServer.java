@@ -42,7 +42,6 @@ public class NetServer implements ApplicationListener{
     private final static Rect viewport = new Rect();
     /** If a player goes away of their server-side coordinates by this distance, they get teleported back. */
     private final static float correctDist = 16f;
-    public static boolean gameStarted = false;
 
     public final Administration admins = new Administration();
     public final CommandHandler clientCommands = new CommandHandler("/");
@@ -469,10 +468,6 @@ public class NetServer implements ApplicationListener{
         return 4 + (playerGroup.size() > 6 ? 1 : 0);
     }
 
-    public void setGameStarted(boolean to){
-        gameStarted = to;
-    }
-
     public Team assignTeam(Player current, Iterable<Player> players){
         return assigner.assign(current, players);
     }
@@ -676,7 +671,11 @@ public class NetServer implements ApplicationListener{
     }*/
 
     public boolean isWaitingForPlayers(){
-        return gameStarted;
+        if(state.rules.playerDamageMultiplier <= 0f){
+            return true;
+        } else{
+            return false;
+        }
     }
 
     @Override
