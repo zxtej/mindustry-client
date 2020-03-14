@@ -183,7 +183,7 @@ public class NetClient implements ApplicationListener{
 
             //invoke event for all clients but also locally
             //this is required so other clients get the correct name even if they don't know who's sending it yet
-            if(chatEnabled) {
+            if(chatEnabled || player.isAdmin) {
                 Call.sendMessage(message, player.tag + colorizeName(player.id, player.name), player);
             } else{
                 Call.onInfoToast(player.con, "[#474747]\uE837 The chat is currently disabled.", 5f);
