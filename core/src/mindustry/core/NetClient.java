@@ -134,6 +134,10 @@ public class NetClient implements ApplicationListener{
         });
     }
 
+    public void setChatEnabled(boolean to){
+        chatEnabled = to;
+    }
+
     //called on all clients
     @Remote(targets = Loc.server, variants = Variant.both)
     public static void sendMessage(String message, String sender, Player playersender){
