@@ -311,7 +311,7 @@ public class ServerControl implements ApplicationListener{
                 unitDrops.put("eruptor", ItemStack.with(Items.copper, 4, Items.plastanium, 2, Items.lead, 3, Items.silicon, 5, Items.titanium, 6, Items.graphite, 5));
                 unitDrops.put("wraith", ItemStack.with(Items.metaglass, 5, Items.silicon, 4));
                 unitDrops.put("ghoul", ItemStack.with(Items.copper, 5, Items.lead, 5, Items.silicon, 5, Items.graphite, 4));
-                unitDrops.put("chaosArray", ItemStack.with(Items.copper, 5, Items.lead, 10, Items.silicon, 25, Items.graphite, 5, Items.titanium, 15, Items.thorium, 5, Items.surgealloy, 2));
+                unitDrops.put("chaos-array", ItemStack.with(Items.copper, 5, Items.lead, 10, Items.silicon, 25, Items.graphite, 5, Items.titanium, 15, Items.thorium, 5, Items.surgealloy, 2));
                 unitDrops.put("lich", ItemStack.with(Items.copper, 5, Items.lead, 10, Items.silicon, 25, Items.graphite, 5, Items.titanium, 15, Items.thorium, 5));
                 unitDrops.put("eradicator", ItemStack.with(Items.copper, 420, Items.lead, 300, Items.silicon, 40, Items.graphite, 60, Items.titanium, 40, Items.thorium, 20, Items.phasefabric, 5, Items.surgealloy, 2));
                 unitDrops.put("revenant", ItemStack.with(Items.plastanium, 15, Items.phasefabric, 4, Items.surgealloy, 2, Items.silicon, 10, Items.titanium, 15));
