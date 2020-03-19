@@ -18,6 +18,19 @@ import mindustry.world.modules.*;
 import static mindustry.Vars.*;
 
 public class Tile implements Position, TargetTrait{
+
+    /** Tile Info for anti-grief. */
+    public class tileInfo{
+        String placedByUUID;
+        String placedBy;
+
+        String destroyedByUUID;
+        String destroyedBy;
+
+        String[] configuredByUUID;
+        String[] configuredBy;
+    }
+
     /** Tile traversal cost. */
     public byte cost = 1;
     /** Tile entity, usually null. */
@@ -47,6 +60,7 @@ public class Tile implements Position, TargetTrait{
         //update entity and create it if needed
         changed();
     }
+
 
     /** Returns this tile's position as a {@link Pos}. */
     public int pos(){
