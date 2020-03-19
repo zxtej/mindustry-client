@@ -27,8 +27,8 @@ public class Tile implements Position, TargetTrait{
         public String destroyedByUUID;
         public String destroyedBy;
 
-        public String[] configuredByUUID;
-        public String[] configuredBy;
+        public String configuredByUUID;
+        public String configuredBy;
     }
 
     public tileInfo info;
