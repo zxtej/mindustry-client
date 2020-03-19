@@ -192,7 +192,7 @@ public class ServerControl implements ApplicationListener{
 
         Events.on(WaveEvent.class, e -> {
             int wave = state.wave;
-            state.multiplier = Mathf.clamp((wave/33f), state.multiplier, 100000f);
+            state.multiplier = Mathf.clamp((wave/44f), state.multiplier, 100000f);
         });
 
 
@@ -222,7 +222,7 @@ public class ServerControl implements ApplicationListener{
             String msg = message.toString();
             for(Player p : playerGroup.all()) {
                 if(p.showHud) {
-                    Call.onLabel(p.con, msg, Strings.stripColors(msg.replaceAll(" ", "")).length() / 8f, unit.x + Mathf.range(2f), unit.y + Mathf.range(2f));
+                    Call.onLabel(p.con, msg, Strings.stripColors(msg.replaceAll(" ", "")).length() / 8f, unit.x + Mathf.range(-2f, 2f), unit.y + Mathf.range(-2f, 2f));
                 }
             }
         });
