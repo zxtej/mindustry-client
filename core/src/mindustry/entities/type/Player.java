@@ -57,6 +57,7 @@ public class Player extends Unit implements BuilderMinerTrait, ShooterTrait{
     public Effects.Effect trailFx = Fx.shootLiquid;
     public String passPhrase = "";
     public Tile tapTile;
+    public Tile lastTapTile;
 
     public float baseRotation;
     public float pointerX, pointerY;
