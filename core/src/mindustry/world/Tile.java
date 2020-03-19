@@ -21,16 +21,17 @@ public class Tile implements Position, TargetTrait{
 
     /** Tile Info for anti-grief. */
     public class tileInfo{
-        String placedByUUID;
-        String placedBy;
+        public String placedByUUID;
+        public String placedBy;
 
-        String destroyedByUUID;
-        String destroyedBy;
+        public String destroyedByUUID;
+        public String destroyedBy;
 
-        String[] configuredByUUID;
-        String[] configuredBy;
+        public String[] configuredByUUID;
+        public String[] configuredBy;
     }
 
+    public tileInfo info;
     /** Tile traversal cost. */
     public byte cost = 1;
     /** Tile entity, usually null. */
@@ -48,6 +49,7 @@ public class Tile implements Position, TargetTrait{
         this.x = (short)x;
         this.y = (short)y;
         block = floor = overlay = (Floor)Blocks.air;
+        this.info = new tileInfo();
     }
 
     public Tile(int x, int y, int floor, int overlay, int wall){
@@ -56,6 +58,7 @@ public class Tile implements Position, TargetTrait{
         this.floor = (Floor)content.block(floor);
         this.overlay = (Floor)content.block(overlay);
         this.block = content.block(wall);
+        this.info = new tileInfo();
 
         //update entity and create it if needed
         changed();
