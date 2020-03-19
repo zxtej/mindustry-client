@@ -171,6 +171,10 @@ public class ServerControl implements ApplicationListener{
             }
         });
 
+        Events.on(WorldLoadEvent.class, event -> {
+            state.multiplier = 1f;
+        });
+
         Events.on(Trigger.socketConfigChanged, () -> {
             toggleSocket(false);
             toggleSocket(Config.socketInput.bool());
