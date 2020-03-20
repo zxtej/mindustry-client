@@ -49,6 +49,7 @@ public class Player extends Unit implements BuilderMinerTrait, ShooterTrait{
     public String tag = "";
     public Boolean doRainbow = false;
     public Boolean doTrail = false;
+    public Boolean inspector = false;
     public int hue;
     public BulletType bt;
     public float sclLifetime = 1f;
