@@ -9,6 +9,7 @@ import arc.util.*;
 import arc.util.CommandHandler.*;
 import arc.util.io.*;
 import arc.util.serialization.*;
+import mindustry.Vars;
 import mindustry.annotations.Annotations.*;
 import mindustry.content.*;
 import mindustry.core.GameState.*;
@@ -666,7 +667,7 @@ public class NetServer implements ApplicationListener{
         Events.fire(new PlayerJoin(player));
     }
 
-    public boolean isWaitingForPlayers(){
+    /*public boolean isWaitingForPlayers(){
         if(state.rules.pvp){
             int used = 0;
             for(TeamData t : state.teams.getActive()){
@@ -677,6 +678,14 @@ public class NetServer implements ApplicationListener{
             return used < 2;
         }
         return false;
+    }*/
+
+    public boolean isWaitingForPlayers(){
+        if(state.rules.playerDamageMultiplier <= 0f){
+            return true;
+        } else{
+            return false;
+        }
     }
 
     @Override
