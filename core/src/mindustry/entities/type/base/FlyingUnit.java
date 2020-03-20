@@ -28,7 +28,7 @@ public class FlyingUnit extends BaseUnit{
 
         public void update(){
             if(retarget()){
-                if (target == null) getClosestEnemyCore();
+                target = getClosestEnemyCore();
             }
 
             if(getClosestSpawner() == null && getSpawner() != null && target == null){

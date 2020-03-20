@@ -164,7 +164,7 @@ public class GroundUnit extends BaseUnit{
         }
 
         if(retarget()){
-            targetClosest();
+            target = getClosestEnemyCore();
         }
     }
 
