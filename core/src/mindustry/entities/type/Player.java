@@ -58,6 +58,7 @@ public class Player extends Unit implements BuilderMinerTrait, ShooterTrait{
     public Effects.Effect trailFx = Fx.shootLiquid;
     public String passPhrase = "";
     public Tile tapTile = null;
+    public float healthMultiplier = 1f;
 
     public float baseRotation;
     public float pointerX, pointerY;
@@ -207,7 +208,7 @@ public class Player extends Unit implements BuilderMinerTrait, ShooterTrait{
 
     @Override
     public float maxHealth(){
-        return mech.health * state.rules.playerHealthMultiplier;
+        return mech.health * state.rules.playerHealthMultiplier * healthMultiplier;
     }
 
     @Override
