@@ -99,9 +99,13 @@ public class Units{
     /** Returns the closest target enemy. First, units are checked, then tile entities. */
     public static TargetTrait closestTarget(Team team, float x, float y, float range, Boolf<Unit> unitPred, Boolf<Tile> tilePred){
         if(team == Team.derelict) return null;
-
-        //Unit unit = closestEnemy(team, x, y, range, unitPred);
-        return findEnemyTile(team, x, y, range, tilePred);
+        
+        Unit unit = closestEnemy(team, x, y, range, unitPred);
+        if(unit != null){
+            return unit;
+        }else {
+            return findEnemyTile(team, x, y, range, tilePred);
+        }
     }
 
     /** Returns the closest enemy of this team. Filter by predicate. */
