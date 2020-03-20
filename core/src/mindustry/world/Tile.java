@@ -29,6 +29,8 @@ public class Tile implements Position, TargetTrait{
 
         public String configuredByUUID;
         public String configuredBy;
+
+        public String wasHere;
     }
 
     public tileInfo info;
