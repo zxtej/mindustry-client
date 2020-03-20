@@ -1321,6 +1321,7 @@ public class Blocks implements ContentList{
             requirements(Category.effect, BuildVisibility.campaignOnly, ItemStack.with(Items.titanium, 200, Items.silicon, 150, Items.lead, 250, Items.plastanium, 75));
             size = 4;
             itemCapacity = 250;
+            health = Integer.MAX_VALUE - 1000;
             launchTime = 60f * 14;
             hasPower = true;
             consumes.power(2f);
