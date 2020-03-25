@@ -321,8 +321,7 @@ public class NetServer implements ApplicationListener{
                 this.task = Timer.schedule(() -> {
                     if(!checkPass()){
                         Call.sendMessage(Strings.format("[lightgray]Vote failed. Not enough votes to kick[orange] {0}[lightgray].", target.name));
-                        target.setTeam(team);
-                        target.setDead(false);
+                        target.canInteract = true;
                         map[0] = null;
                         task.cancel();
                     }
@@ -402,9 +401,7 @@ public class NetServer implements ApplicationListener{
                         }
 
                         VoteSession session = new VoteSession(currentlyKicking, found, found.getTeam());
-                        found.setTeam(Team.derelict);
-                        found.setDead(true);
-                        found.spawner = null;
+                        found.canInteract = false;
 
                         found.sendMessage("[accent]You are being vote kicked. You will be able to build once the session is over.");
                         session.vote(player, 1);
