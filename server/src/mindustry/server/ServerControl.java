@@ -9,6 +9,7 @@ import arc.util.*;
 import arc.util.Timer;
 import arc.util.CommandHandler.*;
 import arc.util.Timer.*;
+import arc.util.io.Streams;
 import arc.util.serialization.*;
 import arc.util.serialization.JsonValue.*;
 import mindustry.*;
@@ -33,6 +34,8 @@ import java.net.*;
 import java.time.*;
 import java.time.format.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static arc.util.Log.*;
 import static mindustry.Vars.*;
@@ -178,7 +181,10 @@ public class ServerControl implements ApplicationListener{
 
         toggleSocket(Config.socketInput.bool());
 
-        info("&lcServer loaded. Type &ly'help'&lc for help.");
+        info("&lc<io>: Server loaded. Type &ly'help'&lc for help.");
+        info("&lc<io>: If you wish to assign a custom domain to your server, please contact aze#0001 on discord for instructions.");
+
+        info("&lc<io>: You need to start hosting to run the server. Type &ly'host'&lc to start hosting.");
     }
 
     private void registerCommands(){
@@ -190,12 +196,12 @@ public class ServerControl implements ApplicationListener{
         });
 
         handler.register("version", "Displays server version info.", arg -> {
-            info("&lmVersion: &lyMindustry {0}-{1} {2} / build {3}", Version.number, Version.modifier, Version.type, Version.build + (Version.revision == 0 ? "" : "." + Version.revision));
+            info("&lm<io>: Version: &lyMindustry {0}-{1} {2} / build {3}", Version.number, Version.modifier, Version.type, Version.build + (Version.revision == 0 ? "" : "." + Version.revision));
             info("&lmJava Version: &ly{0}", System.getProperty("java.version"));
         });
 
         handler.register("exit", "Exit the server application.", arg -> {
-            info("Shutting down server.");
+            info("<io>: Shutting down server.");
             net.dispose();
             Core.app.exit();
         });
@@ -204,12 +210,12 @@ public class ServerControl implements ApplicationListener{
             net.closeServer();
             if(lastTask != null) lastTask.cancel();
             state.set(State.menu);
-            info("Stopped server.");
+            info("<io>: Stopped server.");
         });
 
         handler.register("host", "[mapname] [mode]", "Open the server. Will default to survival and a random map if not specified.", arg -> {
             if(state.is(State.playing)){
-                err("Already hosting. Type 'stop' to stop hosting first.");
+                err("<io>: Already hosting. Type 'stop' to stop hosting first.");
                 return;
             }
 
@@ -220,13 +226,13 @@ public class ServerControl implements ApplicationListener{
                 result = maps.all().find(map -> map.name().equalsIgnoreCase(arg[0].replace('_', ' ')) || map.name().equalsIgnoreCase(arg[0]));
 
                 if(result == null){
-                    err("No map with name &y'{0}'&lr found.", arg[0]);
+                    err("<io>: No map with name &y'{0}'&lr found.", arg[0]);
                     return;
                 }
             }else{
                 Array<Map> maps = Vars.maps.customMaps().size == 0 ? Vars.maps.defaultMaps() : Vars.maps.customMaps();
                 result = maps.random();
-                info("Randomized next map to be {0}.", result.name());
+                info("<io>: Randomized next map to be {0}.", result.name());
             }
 
             Gamemode preset = Gamemode.survival;
@@ -235,12 +241,12 @@ public class ServerControl implements ApplicationListener{
                 try{
                     preset = Gamemode.valueOf(arg[1]);
                 }catch(IllegalArgumentException e){
-                    err("No gamemode '{0}' found.", arg[1]);
+                    err("<io>: No gamemode '{0}' found.", arg[1]);
                     return;
                 }
             }
 
-            info("Loading map...");
+            info("<io>: Loading map...");
 
             logic.reset();
             lastMode = preset;
@@ -249,9 +255,10 @@ public class ServerControl implements ApplicationListener{
                 state.rules = result.applyRules(preset);
                 logic.play();
 
-                info("Map loaded.");
+                info("<io>: Map loaded.");
 
                 netServer.openServer();
+                info("&lc<io>: You can connect to the server connect using the custom domain. &ly'community.mindustry.io:" + port + "'");
             }catch(MapException e){
                 Log.err(e.map.name() + ": " + e.getMessage());
             }
@@ -259,14 +266,23 @@ public class ServerControl implements ApplicationListener{
 
         handler.register("maps", "Display all available maps.", arg -> {
             if(!maps.all().isEmpty()){
-                info("Maps:");
+                info("<io>: Vanilla Maps:");
                 for(Map map : maps.all()){
-                    info("  &ly{0}: &lb&fi{1} / {2}x{3}", map.name(), map.custom ? "Custom" : "Default", map.width, map.height);
+                    if(!map.custom){
+                        info("  &ly{0}: {1}x{2}", map.name(), map.width, map.height);
+                    }
+                }
+
+                info("<io>: Custom Maps:");
+                for(Map map : maps.all()){
+                    if(map.custom){
+                        info("  &ly{0}: {1}x{2}", map.name(), map.width, map.height);
+                    }
                 }
             }else{
-                info("No maps found.");
+                info("<io>: No maps found.");
             }
-            info("&lyMap directory: &lb&fi{0}", customMapDirectory.file().getAbsoluteFile().toString());
+            info("&ly<io>: Map directory: &lb&fi{0}", customMapDirectory.file().getAbsoluteFile().toString());
         });
 
         handler.register("reloadmaps", "Reload all maps from disk.", arg -> {
@@ -275,7 +291,7 @@ public class ServerControl implements ApplicationListener{
             if(maps.all().size > beforeMaps){
                 info("&lc{0}&ly new map(s) found and reloaded.", maps.all().size - beforeMaps);
             }else{
-                info("&lyMaps reloaded.");
+                info("&ly<io>: Maps reloaded.");
             }
         });
 
@@ -283,7 +299,7 @@ public class ServerControl implements ApplicationListener{
             if(state.is(State.menu)){
                 info("Status: &rserver closed");
             }else{
-                info("Status:");
+                info("<io>: Status:");
                 info("  &lyPlaying on map &fi{0}&fb &lb/&ly Wave {1}", Strings.capitalize(world.getMap().name()), state.wave);
 
                 if(state.rules.waves){
@@ -312,23 +328,102 @@ public class ServerControl implements ApplicationListener{
                     info("  &ly{0} &lcv{1}", mod.meta.displayName(), mod.meta.version);
                 }
             }else{
-                info("No mods found.");
+                info("<io>: No mods found. Install mods using the /installmod command");
             }
             info("&lyMod directory: &lb&fi{0}", modDirectory.file().getAbsoluteFile().toString());
         });
 
-        handler.register("mod", "<name...>", "Display information about a loaded plugin.", arg -> {
-            LoadedMod mod = mods.list().find(p -> p.meta.name.equalsIgnoreCase(arg[0]));
-            if(mod != null){
-                info("Name: &ly{0}", mod.meta.displayName());
-                info("Internal Name: &ly{0}", mod.name);
-                info("Version: &ly{0}", mod.meta.version);
-                info("Author: &ly{0}", mod.meta.author);
-                info("Path: &ly{0}", mod.file.path());
-                info("Description: &ly{0}", mod.meta.description);
-            }else{
-                info("No mod with name &ly'{0}'&lg found.");
+        handler.register("mod", "<name> [action]", "Display information about a loaded plugin. Replace spaces with an underscore when searching for the mod with a name. Possible actions: [remove]", arg -> {
+            LoadedMod mod = null;
+            for(LoadedMod m : mods.list()){
+                String n = m.name.toLowerCase().replaceAll(" ", "_");
+                if(n.contains(arg[0])) mod = m;
             }
+            if(mod != null){
+                if(arg.length >= 2 && arg[1].toLowerCase().equals("remove")){
+                    mods.removeMod(mod);
+                    info("Removed &ly'" + arg[0] + "'&lg successfully.");
+                }else {
+                    info("Name: &ly{0}", mod.meta.displayName());
+                    info("Internal Name: &ly{0}", mod.name);
+                    info("Version: &ly{0}", mod.meta.version);
+                    info("Author: &ly{0}", mod.meta.author);
+                    info("Path: &ly{0}", mod.file.path());
+                    info("Description: &ly{0}", mod.meta.description.substring(0, 250));
+                }
+            }else{
+                info("No mod with name &ly'" + arg[0] + "'&lg found.");
+            }
+        });
+
+        handler.register("installmod", "<repository>", "Install a mod to the server instantly, find repositories on https://simonwoodburyforget.github.io/mindustry-mods/", arg -> {
+            String text = arg[0];
+            Core.net.httpGet("http://api.github.com/repos/" + text + "/zipball/master", loc -> {
+                Core.net.httpGet(loc.getHeader("Location"), result -> {
+                    info("<io>: Connecting to repository " + arg[0] + "..");
+                    if(result.getStatus() != Net.HttpStatus.OK){
+                        Log.warn("Error connecting to repository: " + result.getResultAsString());
+                    }else{
+                        try{
+                            Fi file = tmpDirectory.child(text.replace("/", "") + ".zip");
+                            Streams.copy(result.getResultAsStream(), file.write(false));
+                            mods.importMod(file);
+                            file.delete();
+                            Core.app.post(() -> {
+                                info("<io>: Mod installed successfully!");
+                            });
+                        }catch(Throwable e){
+                            e.printStackTrace();
+                        }
+                    }
+                }, t -> Core.app.post(() -> {
+                    warn("<io>: Mod installation failed.");
+                    warn("<io>: It is recommended to remove the mod using the file manager to avoid future conflicts.");
+                }));
+            }, t -> Core.app.post(() -> {
+                warn("<io>: Mod installation failed.");
+                warn("<io>: It is recommended to remove the mod using the file manager to avoid future conflicts.");
+            }));
+        });
+
+        handler.register("downloadmap", "<link>", "Download and install a map instantly, find maps at https://github.com/fuzzbuck/io-resources", arg -> {
+            String text = arg[0];
+            // https://github.com/fuzzbuck/io-resources/blob/master/maps/attack/Att_fallen_lich.msav
+            Pattern pattern = Pattern.compile("/(?:.(?!/))+$");
+            Matcher m = pattern.matcher(text);
+            String fname = "";
+            if (m.find()) {
+                fname = m.group();
+                if(!fname.trim().endsWith(".msav")) {
+                    warn("<io>: Invalid link formatting. Link must end with .msav");
+                    return;
+                }
+            }else{
+                warn("<io>: You must provide a valid link!");
+                return;
+            }
+            String finalFname = fname;
+            Core.net.httpGet(text.replaceAll("blob", "raw"), result -> {
+                info("<io>: Downloading from " + arg[0] + "..");
+                if(result.getStatus() != Net.HttpStatus.OK){
+                    Log.warn("Error downloading: " + result.getResultAsString());
+                }else{
+                    try{
+                        Fi fh = Core.settings.getDataDirectory().child("maps").child(finalFname);
+                        Streams.copy(result.getResultAsStream(), fh.write(false));
+                        Core.app.post(() -> {
+                            info("<io>: Map installed successfully!");
+                            Vars.maps.reload();
+                        });
+                    }catch(Throwable e){
+                        e.printStackTrace();
+                    }
+                }
+            }, t -> Core.app.post(() -> {
+                t.printStackTrace();
+                warn("<io>: Map download failed.");
+                warn("<io>: It is recommended to remove the map using the file manager to avoid future conflicts.");
+            }));
         });
 
         handler.register("js", "<script...>", "Run arbitrary Javascript.", arg -> {
@@ -844,7 +939,73 @@ public class ServerControl implements ApplicationListener{
             info("&ly{0}&lg MB collected. Memory usage now at &ly{1}&lg MB.", pre - post, post);
         });
 
+        handler.register("team", "<player> <team>", "Change the players team.", arg -> {
+            Player p = findPlayer(arg[0]);
+            int team;
+            try {
+                team  = Integer.parseInt(arg[1]);
+            }catch(Exception e){
+                Log.warn("Invalid team provided, teams are formatted in numbers <1-999>");
+                return;
+            }
+            if(p != null){
+                p.setTeam(Team.get(team));
+                Log.info("Changed " + p.name + "'s name to " + team);
+            }else{
+                Log.warn("Player not found. Search players by: <name/id/uuid/ip>");
+            }
+        });
+
+        handler.register("healthmod", "<player> <multiplier>", "Change the players maximum health value & heal them.", arg -> {
+            Player p = findPlayer(arg[0]);
+            float amt;
+            try {
+                amt  = Float.parseFloat(arg[1]);
+            }catch(Exception e){
+                Log.warn("Invalid multiplier provided, multipliers are formatted in numbers <1-99999>");
+                return;
+            }
+            if(p != null){
+                p.healthMultiplier = amt;
+                p.heal();
+                Log.info("Changed " + p.name + "'s max health to " + amt);
+            }else{
+                Log.warn("Player not found. Search players by: <name/id/uuid/ip>");
+            }
+        });
+
+        handler.register("damagemod", "<player> <multiplier>", "Change the players damage multiplier value.", arg -> {
+            Player p = findPlayer(arg[0]);
+            float amt;
+            try {
+                amt  = Float.parseFloat(arg[1]);
+            }catch(Exception e){
+                Log.warn("Invalid multiplier provided, multipliers are formatted in numbers <1-99999>");
+                return;
+            }
+            if(p != null){
+                p.damageMultiplier = amt;
+                Log.info("Changed " + p.name + "'s damage dealt multiplier to " + amt);
+            }else{
+                Log.warn("Player not found. Search players by: <name/id/uuid/ip>");
+            }
+        });
+
         mods.eachClass(p -> p.registerServerCommands(handler));
+    }
+
+
+    private Player findPlayer(String identifier){
+        for(Player p : playerGroup.all()){
+            if(p.uuid.equals(identifier)) return p;
+            if(p.con.address.equals(identifier)) return p;
+            if(String.valueOf(p.id).equals(identifier)) return p;
+            identifier = identifier.toLowerCase();
+            if(p.name.toLowerCase().equals(identifier)) return p;
+            if(p.name.toLowerCase().equals(Strings.stripColors(identifier)) || p.name.startsWith(Strings.stripColors(identifier))) return p;
+            if(p.name.toLowerCase().contains(Strings.stripColors(identifier)));
+        }
+        return null;
     }
 
     private void readCommands(){

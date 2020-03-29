@@ -56,6 +56,8 @@ public class Player extends Unit implements BuilderMinerTrait, ShooterTrait{
     public Mech mech = Mechs.starter;
     public SpawnerTrait spawner, lastSpawner;
     public int respawns;
+    public float healthMultiplier = 1f;
+    public float damageMultiplier = 1f;
 
     public @Nullable NetConnection con;
     public boolean isLocal = false;
@@ -87,7 +89,7 @@ public class Player extends Unit implements BuilderMinerTrait, ShooterTrait{
 
     @Override
     public float getDamageMultipler(){
-        return status.getDamageMultiplier() * state.rules.playerDamageMultiplier;
+        return status.getDamageMultiplier() * state.rules.playerDamageMultiplier * damageMultiplier;
     }
 
     @Override
@@ -191,7 +193,7 @@ public class Player extends Unit implements BuilderMinerTrait, ShooterTrait{
 
     @Override
     public float maxHealth(){
-        return mech.health * state.rules.playerHealthMultiplier;
+        return mech.health * state.rules.playerHealthMultiplier * healthMultiplier;
     }
 
     @Override
