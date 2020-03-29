@@ -258,7 +258,7 @@ public class ServerControl implements ApplicationListener{
                 info("<io>: Map loaded.");
 
                 netServer.openServer();
-                info("&lc<io>: You can connect to the server connect using the custom domain. &ly'community.mindustry.io:" + port + "'");
+                info("&lc<io>: You can connect to the server connect using the custom domain. &ly'community.mindustry.io:" + Config.socketInputPort.num() + "'");
             }catch(MapException e){
                 Log.err(e.map.name() + ": " + e.getMessage());
             }
