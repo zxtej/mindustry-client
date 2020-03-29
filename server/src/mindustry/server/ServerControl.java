@@ -259,6 +259,7 @@ public class ServerControl implements ApplicationListener{
 
                 netServer.openServer();
                 info("&lc<io>: You can connect to the server connect using the custom domain. &ly'community.mindustry.io:" + Config.port.num() + "'");
+                info("&lc<io>: View the introduction video to the ioPanel here: https://www.youtube.com/watch?v=oLOdTzl1q8g");
             }catch(MapException e){
                 Log.err(e.map.name() + ": " + e.getMessage());
             }
