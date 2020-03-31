@@ -103,7 +103,7 @@ public class Units{
         Unit unit = closestEnemy(team, x, y, range, unitPred);
         if(unit != null){
             return unit;
-        }else{
+        }else {
             return findEnemyTile(team, x, y, range, tilePred);
         }
     }
