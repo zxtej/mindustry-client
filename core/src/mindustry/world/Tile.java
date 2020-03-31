@@ -385,13 +385,6 @@ public class Tile implements Position, TargetTrait{
         return null;
     }
 
-    public boolean surroundedBy(Block block){
-      if(getNearby(1, 0).block == block) return true;
-      if(getNearby(-1, 0).block == block) return true;
-      if(getNearby(0, 1).block == block) return true;
-        return getNearby(0, -1).block == block;
-    }
-
     // ▲ ▲ ▼ ▼ ◀ ▶ ◀ ▶ B A
     public @Nullable Tile front(){
         return getNearbyLink((rotation + 4) % 4);
