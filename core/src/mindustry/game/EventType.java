@@ -313,14 +313,6 @@ public class EventType{
         }
     }
 
-    public static class UnitKilledEvent{
-        public final BaseUnit unit;
-
-        public UnitKilledEvent(BaseUnit unit){
-            this.unit = unit;
-        }
-    }
-
     public static class UnitCreateEvent{
         public final BaseUnit unit;
 

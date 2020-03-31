@@ -852,7 +852,7 @@ public class Blocks implements ContentList{
             requirements(Category.effect, ItemStack.with(Items.lead, 30, Items.copper, 25));
             consumes.power(0.3f);
             size = 1;
-            reload = 500f;
+            reload = 200f;
             range = 40f;
             healPercent = 4f;
             phaseBoost = 4f;
@@ -865,7 +865,7 @@ public class Blocks implements ContentList{
             requirements(Category.effect, ItemStack.with(Items.lead, 100, Items.titanium, 25, Items.silicon, 40));
             consumes.power(1.5f);
             size = 2;
-            reload = 500f;
+            reload = 250f;
             range = 85f;
             healPercent = 14f;
             health = 80 * size * size;
