@@ -8,6 +8,7 @@ import arc.math.geom.*;
 import arc.util.*;
 import mindustry.content.*;
 import mindustry.entities.*;
+import mindustry.game.EventType;
 import mindustry.game.EventType.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
@@ -111,6 +112,7 @@ public class NuclearReactor extends PowerGenerator{
 
         if(entity.heat >= 0.999f){
             Events.fire(Trigger.thoriumReactorOverheat);
+            Events.fire(new EventType.OverheatEvent(tile));
             entity.kill();
         }
     }

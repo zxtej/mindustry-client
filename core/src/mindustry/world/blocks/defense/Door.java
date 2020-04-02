@@ -10,6 +10,7 @@ import mindustry.content.*;
 import mindustry.entities.*;
 import mindustry.entities.Effects.*;
 import mindustry.entities.type.*;
+import mindustry.game.EventType;
 import mindustry.gen.*;
 import mindustry.world.*;
 
@@ -87,6 +88,7 @@ public class Door extends Wall{
             return;
         }
 
+        Events.fire(new EventType.DoorEvent(tile, player));
         Call.onDoorToggle(null, tile, !entity.open);
     }
 

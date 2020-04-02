@@ -199,6 +199,24 @@ public class EventType{
         }
     }
 
+    public static class OverheatEvent{
+        public final Tile tile;
+
+        public OverheatEvent(Tile tile){
+            this.tile = tile;
+        }
+    }
+
+    public static class DoorEvent{
+        public final Tile tile;
+        public final Player player;
+
+        public DoorEvent(Tile tile, Player player){
+            this.tile = tile;
+            this.player = player;
+        }
+    }
+
     public static class GameOverEvent{
         public final Team winner;
 
