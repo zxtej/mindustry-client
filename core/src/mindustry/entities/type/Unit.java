@@ -40,7 +40,6 @@ public abstract class Unit extends DestructibleEntity implements SaveTrait, Targ
     private static final Vec2 moveVector = new Vec2();
 
     public float rotation;
-    public Player petOf = null;
 
     protected final Interpolator interpolator = new Interpolator();
     protected final Statuses status = new Statuses();
