@@ -189,7 +189,6 @@ public class NetClient implements ApplicationListener{
             } else{
                 Call.onInfoToast(player.con, "[#474747]\uE837 The chat is currently disabled.", 5f);
             }*/
-            Log.info(player.color.toString());
             Call.sendMessage(colorizeName(player.id, player.tag) + colorizeName(player.id, player.name) + "[accent] \uE839[white] " + message);
         }else{
             //log command to console but with brackets
