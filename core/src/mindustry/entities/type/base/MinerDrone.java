@@ -30,6 +30,9 @@ public class MinerDrone extends BaseDrone implements MinerTrait{
         }
 
         public void update(){
+            if(petOf != null){
+                setState(follow);
+            }
             TileEntity entity = getClosestCore();
 
             if(entity == null) return;
