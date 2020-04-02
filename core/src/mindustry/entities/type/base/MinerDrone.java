@@ -3,6 +3,7 @@ package mindustry.entities.type.base;
 import arc.math.Mathf;
 import arc.util.Structs;
 import mindustry.content.Blocks;
+import mindustry.content.Items;
 import mindustry.entities.traits.MinerTrait;
 import mindustry.entities.type.TileEntity;
 import mindustry.entities.units.UnitState;
@@ -62,7 +63,7 @@ public class MinerDrone extends BaseDrone implements MinerTrait{
                 }else{
                     //nothing to mine anymore, core full: circle spawnpoint
                     if(getSpawner() != null){
-                        target = getSpawner();
+                        target = (petOf != null ? petOf.target : getSpawner());
 
                         circle(40f);
                     }
@@ -83,13 +84,18 @@ public class MinerDrone extends BaseDrone implements MinerTrait{
         public void update(){
             if(item.amount == 0 || item.item.type != ItemType.material){
                 clearItem();
-                setState(mine);
+                if(petOf == null) {
+                    setState(mine);
+                }else{
+                    setState(follow);
+                }
                 return;
             }
 
             target = getClosestCore();
 
             if(target == null) return;
+
 
             TileEntity tile = (TileEntity)target;
 
@@ -99,7 +105,43 @@ public class MinerDrone extends BaseDrone implements MinerTrait{
                 }
 
                 clearItem();
+                if(petOf == null) {
+                    setState(mine);
+                }else{
+                    setState(follow);
+                }
+            }
+
+            circle(type.range / 1.8f);
+        }
+    },
+
+    follow = new UnitState(){
+        public void entered(){
+            target = (petOf != null ? petOf.target : null);
+        }
+
+        public void update(){
+            if(item.amount == 0 || item.item.type != ItemType.material){
+                clearItem();
+                return;
+            }
+
+            target = (petOf != null ? petOf.target : null);
+
+            if(target == null){
                 setState(mine);
+                return;
+            }
+
+            if(item.amount >= getItemCapacity() || (targetItem != null && !acceptsItem(targetItem))){
+                setState(drop);
+            }
+
+            Tile closestOre = indexer.findClosestOre(x, y, Items.titanium);
+            if(dst(closestOre.worldx(), closestOre.worldy()) < getMiningRange() && dst(petOf.getX(), petOf.getY()) < 10f * tilesize){
+                setMineTile((Tile)target);
+                updateMining();
             }
 
             circle(type.range / 1.8f);
@@ -121,6 +163,7 @@ public class MinerDrone extends BaseDrone implements MinerTrait{
     @Override
     protected void updateRotation(){
         if(mineTile != null && shouldRotate() && mineTile.dst(this) < type.range){
+            //rotation = Mathf.slerpDelta(rotation, angleTo(mineTile), 0.3f);
             rotation = Mathf.slerpDelta(rotation, angleTo(mineTile), 0.3f);
         }else{
             rotation = Mathf.slerpDelta(rotation, velocity.angle(), 0.3f);
