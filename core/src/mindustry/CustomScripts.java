@@ -1,21 +1,11 @@
 package mindustry;
 
-import arc.Events;
-import arc.func.Cons;
-import arc.graphics.Color;
-import arc.graphics.g2d.Draw;
-import arc.graphics.g2d.Fill;
-import arc.math.geom.Circle;
-import arc.util.Log;
-import mindustry.core.World;
-import mindustry.entities.units.UnitCommand;
+import arc.*;
+import arc.func.*;
+import arc.util.async.*;
+import mindustry.entities.units.*;
 import mindustry.game.EventType.*;
-import mindustry.gen.BlockUnitUnit;
-import mindustry.gen.Call;
-import mindustry.gen.Player;
-import mindustry.graphics.Layer;
-import mindustry.world.Tile;
-import mindustry.world.blocks.sandbox.ItemSource;
+import mindustry.gen.*;
 
 public class CustomScripts {
     public void set(boolean f) {}
@@ -39,16 +29,12 @@ public class CustomScripts {
         }
 
         private void init() {
-            onChange = e -> {
-                Thread t = new Thread(() -> {
-                    try{
-                        Thread.sleep(50);
-                    } catch (InterruptedException ignored){}
-                    if (!enabled) return;
-                    if (e.command_aft != UnitCommand.attack) return;
-                    Call.tileConfig(Vars.player, e.tile, e.command_bef);
-                }); t.start();
-            };
+            onChange = e -> Threads.thread(() -> {
+                Threads.sleep(50);
+                if (!enabled) return;
+                if (e.command_aft != UnitCommand.attack) return;
+                Call.tileConfig(Vars.player, e.tile, e.command_bef);
+            });
         }
     }
 
