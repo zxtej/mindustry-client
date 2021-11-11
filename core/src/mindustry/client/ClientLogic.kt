@@ -1,6 +1,7 @@
 package mindustry.client
 
 import arc.*
+import arc.struct.Seq
 import arc.util.*
 import mindustry.*
 import mindustry.client.ClientVars.*
@@ -32,6 +33,7 @@ class ClientLogic {
                 Vars.player.persistPlans.clear()
                 processorConfigs.clear()
                 Vars.frozenPlans.clear()
+                trackedUnits.each { it.clear() }
             } // FINISHME: Why is this even in the player class? It creates a queue for each player even tho only one is used...
             lastJoinTime = Time.millis()
             PowerInfo.initialize()
@@ -66,6 +68,8 @@ class ClientLogic {
             Autocomplete.initialize()
 
             Navigation.navigator.init()
+            trackedUnits.setSize(Vars.content.units().size)
+            for(i in 0 until Vars.content.units().size) trackedUnits.set(i, Seq(0))
 
             Core.settings.getBoolOnce("client730") { Core.settings.put("disablemonofont", true) } // FINISHME: Remove later
 
