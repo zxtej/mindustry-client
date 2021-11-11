@@ -399,6 +399,12 @@ public class DesktopInput extends InputHandler{
                 });
 
                 table.row().fill();
+                table.button("@client.unittracker", () -> {
+                    ui.unitTracker.show();
+                    table.remove();
+                });
+
+                table.row().fill();
                 table.button("@client.teleport", () -> {
                     NetClient.setPosition(World.unconv(cursor.x), World.unconv(cursor.y));
                     table.remove();

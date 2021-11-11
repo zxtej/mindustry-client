@@ -20,7 +20,7 @@ import arc.scene.ui.Tooltip.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
-import mindustry.client.ui.UnitPicker;
+import mindustry.client.ui.*;
 import mindustry.editor.*;
 import mindustry.game.EventType.*;
 import mindustry.gen.*;
@@ -78,6 +78,7 @@ public class UI implements ApplicationListener, Loadable{
 
     // Client related
     public UnitPicker unitPicker;
+    public UnitTracker unitTracker;
 
 
     public UI(){
@@ -202,6 +203,7 @@ public class UI implements ApplicationListener, Loadable{
 
         // Client related
         unitPicker = new UnitPicker();
+        unitTracker = new UnitTracker();
 
 
         Group group = Core.scene.root;
