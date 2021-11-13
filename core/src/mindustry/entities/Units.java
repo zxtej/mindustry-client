@@ -64,6 +64,7 @@ public class Units{
 
     @Remote(called = Loc.server)
     public static void unitDespawn(Unit unit){
+        Events.fire(new EventType.UnitDespawnEvent(unit));
         Fx.unitDespawn.at(unit.x, unit.y, 0, unit);
         unit.remove();
     }

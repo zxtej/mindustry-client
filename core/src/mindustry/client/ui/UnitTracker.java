@@ -10,6 +10,7 @@ import arc.util.*;
 import mindustry.client.*;
 import mindustry.client.antigrief.*;
 import mindustry.game.*;
+import mindustry.gen.*;
 import mindustry.input.*;
 import mindustry.type.*;
 import mindustry.ui.*;
@@ -40,16 +41,18 @@ public class UnitTracker extends BaseDialog {
                 for (UnitType u : content.units()) {
                     if (selectedTags.any() && !selectedTags.contains(u)) continue;
                     for (UnitLog log : trackedUnits.get(u.id)) {
-                        logTable.image(u.uiIcon).size(iconSize).expandY().align(Align.right).padLeft(5f).padTop(5f);
+                        logTable.image(u.uiIcon).size(iconSize).expandY().align(Align.right).padLeft(5f).padTop(15f);
                         var temp = logTable.table(t2 -> {
                             t2.defaults().growX().left();
-                            t2.labelWrap(log::getId);
+                            t2.labelWrap(log::getIdFlag);
                             t2.row();
                             t2.button(b -> b.labelWrap(() -> log.getController(Core.input.shift())).left().grow(), Styles.cleart, () -> {
                                 if(!Core.input.shift() || !log.isLogicControlled()) return;
                                 if(control.input instanceof DesktopInput di) di.panning = true;
                                 //lastSentPos.set(log.getControllerX(), log.getControllerY());
-                                Spectate.INSTANCE.spectate(Tmp.v5.set(log.getControllerX(), log.getControllerY())); // gotta show v5 some love
+                                var controller = log.getLogicController();
+                                if(controller == null) return;
+                                Spectate.INSTANCE.spectate(log.getLogicController().controller);
                             }).update(b -> {
                                 Vec2 bottom = t2.localToStageCoordinates(Tmp.v1.set(0, 0)); //bottom left
                                 boolean d = !log.isLogicControlled() || bottom.y + t2.getHeight() < 0 || bottom.y > Core.graphics.getHeight();
@@ -58,7 +61,7 @@ public class UnitTracker extends BaseDialog {
                             });
                             t2.row();
                             t2.button(b -> b.labelWrap(log::getCoordsString).left().grow(), Styles.cleart, () -> {
-                                if(Core.input.shift()) Spectate.INSTANCE.spectate(Tmp.v5.set(log.getControllerX(), log.getControllerY()));
+                                if(Core.input.shift()) Spectate.INSTANCE.spectate(log.getUnit() == Nulls.unit? Tmp.v5.set(log.getX(), log.getY()):log.getUnit());
                             }).touchable(() -> {
                                 Vec2 bottom = t2.localToStageCoordinates(Tmp.v1.set(0, 0)); //bottom left
                                 return bottom.y + t2.getHeight() < 0 || bottom.y > Core.graphics.getHeight() ? Touchable.disabled:Touchable.enabled;

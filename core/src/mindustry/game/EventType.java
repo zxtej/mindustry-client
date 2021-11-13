@@ -545,6 +545,14 @@ public class EventType{
         }
     }
 
+    public static class UnitDespawnEvent{
+        public final Unit unit;
+
+        public UnitDespawnEvent(Unit unit) {
+            this.unit = unit;
+        }
+    }
+
     public static class UnitDrownEvent{
         public final Unit unit;
 
