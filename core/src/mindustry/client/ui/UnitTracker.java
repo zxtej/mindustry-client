@@ -3,7 +3,6 @@ package mindustry.client.ui;
 import arc.*;
 import arc.math.geom.*;
 import arc.scene.event.*;
-import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
@@ -24,11 +23,6 @@ public class UnitTracker extends BaseDialog {
     private Runnable rebuildPane = () -> {}, rebuildTags = () -> {};
     private final Seq<UnitType> selectedTags = new Seq<>();
     private Table logTable;
-    private final TextButton.TextButtonStyle buttonStyle = Styles.cleart;
-    {
-        buttonStyle.disabled = Styles.none;
-        buttonStyle.over = Styles.none;
-    }
     {
         Events.on(EventType.ClientLoadEvent.class, event -> Core.app.post(() -> { // help this is filthy
             rebuildPane = () -> {
@@ -41,38 +35,37 @@ public class UnitTracker extends BaseDialog {
                 for (UnitType u : content.units()) {
                     if (selectedTags.any() && !selectedTags.contains(u)) continue;
                     for (UnitLog log : trackedUnits.get(u.id)) {
-                        logTable.image(u.uiIcon).size(iconSize).expandY().align(Align.right).padLeft(5f).padTop(15f);
-                        var temp = logTable.table(t2 -> {
-                            t2.defaults().growX().left();
-                            t2.labelWrap(log::getIdFlag);
-                            t2.row();
-                            t2.button(b -> b.labelWrap(() -> log.getController(Core.input.shift())).left().grow(), Styles.cleart, () -> {
-                                if(!Core.input.shift() || !log.isLogicControlled()) return;
-                                if(control.input instanceof DesktopInput di) di.panning = true;
-                                //lastSentPos.set(log.getControllerX(), log.getControllerY());
-                                var controller = log.getLogicController();
-                                if(controller == null) return;
-                                Spectate.INSTANCE.spectate(log.getLogicController().controller);
-                            }).update(b -> {
-                                Vec2 bottom = t2.localToStageCoordinates(Tmp.v1.set(0, 0)); //bottom left
-                                boolean d = !log.isLogicControlled() || bottom.y + t2.getHeight() < 0 || bottom.y > Core.graphics.getHeight();
-                                b.setDisabled(d);
-                                b.touchable(() -> d ? Touchable.disabled:Touchable.enabled);
+                        logTable.button(frame -> {
+                            frame.table(t -> {
+                                t.image(u.uiIcon).size(iconSize).expandY().align(Align.right);
+                                t.table(t2 -> {
+                                    t2.defaults().growX().left();
+                                    t2.labelWrap(log::getIdFlag);
+                                    t2.row();
+                                    t2.button(b -> b.labelWrap(() -> log.getController(Core.input.shift())).left().grow(), Styles.nonet, () -> {
+                                        if(!Core.input.shift() || !log.isLogicControlled()) return;
+                                        if(control.input instanceof DesktopInput di) di.panning = true;
+                                        //lastSentPos.set(log.getControllerX(), log.getControllerY());
+                                        var controller = log.getLogicController();
+                                        if(controller == null) return;
+                                        Spectate.INSTANCE.spectate(log.getLogicController().controller);
+                                    }).disabled(b -> !log.isLogicControlled());
+                                    t2.row();
+                                    t2.button(b -> b.labelWrap(log::getCoordsString).left().grow(), Styles.nonet, () -> {
+                                        if(Core.input.shift()) Spectate.INSTANCE.spectate(log.getUnit() == Nulls.unit? Tmp.v5.set(log.getX(), log.getY()):log.getUnit());
+                                    });
+                                    t2.row();
+                                    t2.label(log::getBornTime);
+                                    t2.row();
+                                    t2.label(log::getDeathTime);
+                                    t2.row();
+                                }).pad(4).width(370f - iconSize).expandY();
                             });
-                            t2.row();
-                            t2.button(b -> b.labelWrap(log::getCoordsString).left().grow(), Styles.cleart, () -> {
-                                if(Core.input.shift()) Spectate.INSTANCE.spectate(log.getUnit() == Nulls.unit? Tmp.v5.set(log.getX(), log.getY()):log.getUnit());
-                            }).touchable(() -> {
-                                Vec2 bottom = t2.localToStageCoordinates(Tmp.v1.set(0, 0)); //bottom left
-                                return bottom.y + t2.getHeight() < 0 || bottom.y > Core.graphics.getHeight() ? Touchable.disabled:Touchable.enabled;
-                            });
-                            t2.row();
-                            t2.label(log::getBornTime);
-                            t2.row();
-                            t2.label(log::getDeathTime);
-                            t2.row();
-                        }).pad(4).width(370f - iconSize).expandY();
-                        temp.update(e -> temp.minHeight(Math.max(temp.minHeight(), temp.get().getHeight())));
+                        }, Styles.cleari, () -> {}).margin(5f).pad(5f).self(t -> t.update(frame -> {
+                            if(frame.getHeight() > t.minHeight()) t.minHeight(frame.getHeight());
+                            Vec2 bottom = frame.localToStageCoordinates(Tmp.v1.set(0,0)); //bottom left
+                            t.touchable(bottom.y + frame.getHeight() < 0 || bottom.y > Core.graphics.getHeight()? Touchable.disabled:Touchable.childrenOnly);
+                        }));
                         if (++i % cols == 0) {
                             logTable.row();
                         }
