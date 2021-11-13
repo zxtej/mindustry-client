@@ -37,7 +37,7 @@ public class UnitTracker extends BaseDialog {
                     for (UnitLog log : trackedUnits.get(u.id)) {
                         logTable.button(frame -> {
                             frame.table(t -> {
-                                t.image(u.uiIcon).size(iconSize).expandY().align(Align.right);
+                                t.image(u.uiIcon).size(iconSize).growY().align(Align.right);
                                 t.table(t2 -> {
                                     t2.defaults().growX().left();
                                     t2.labelWrap(log::getIdFlag);
@@ -59,9 +59,9 @@ public class UnitTracker extends BaseDialog {
                                     t2.row();
                                     t2.label(log::getDeathTime);
                                     t2.row();
-                                }).pad(4).width(370f - iconSize).expandY();
+                                }).pad(4).width(370f - iconSize).growY();
                             });
-                        }, Styles.cleari, () -> {}).margin(5f).pad(5f).self(t -> t.update(frame -> {
+                        }, Styles.cleari, () -> {}).margin(5f).pad(5f).growY().self(t -> t.update(frame -> {
                             if(frame.getHeight() > t.minHeight()) t.minHeight(frame.getHeight());
                             Vec2 bottom = frame.localToStageCoordinates(Tmp.v1.set(0,0)); //bottom left
                             t.touchable(bottom.y + frame.getHeight() < 0 || bottom.y > Core.graphics.getHeight()? Touchable.disabled:Touchable.childrenOnly);
