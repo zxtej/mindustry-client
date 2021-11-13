@@ -5,7 +5,6 @@ import arc.util.Time
 import mindustry.Vars
 import mindustry.ai.types.LogicAI
 import mindustry.client.ClientVars.*
-import mindustry.client.utils.floor
 import mindustry.core.UI
 import mindustry.core.World
 import mindustry.entities.units.UnitController
@@ -13,8 +12,6 @@ import mindustry.game.EventType
 import mindustry.gen.*
 import mindustry.gen.Unit
 import mindustry.type.UnitType
-import java.math.MathContext
-import java.math.RoundingMode
 import java.time.Instant
 
 class UnitLog (var unit: Unit){
@@ -122,12 +119,12 @@ class UnitLog (var unit: Unit){
     }
 
     fun getBornTime() : String {
-        if(bornTime == Instant.EPOCH) return ""
+        if(bornTime == Instant.EPOCH) return "[darkgray]Created:"
         return "Created " + getTimeAgo(bornTime) + " ago"
     }
 
     fun getDeathTime() : String {
-        if(deathTime == Instant.EPOCH) return ""
+        if(deathTime == Instant.EPOCH) return "[darkgray]Died:"
         return "Died " + getTimeAgo(deathTime) + " ago"
     }
 
