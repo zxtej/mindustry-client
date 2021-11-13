@@ -25,17 +25,17 @@ class UnitLog (var unit: Unit){
     val id: String = unit.id.toString()
     var x = unit.x
     var y = unit.y
+    var flag = unit.flag
     private val typeId = type.id.toInt()
     private var bornTime: Instant = Instant.EPOCH
     private var deathTime: Instant = Instant.EPOCH
     private val coordsRegex: Regex = "(\\([\\d.]*, [\\d.]*\\)) accessed by".toRegex()
 
     init {
-        if(Vars.world.isGenerating){
+        if(Vars.world.isGenerating || Vars.netClient.isConnecting) {
             bornTime = Instant.now()
         }
-        //do we need to check if it exists anyway?
-        trackedUnits.get(typeId).add(this);
+        trackedUnits.get(typeId).add(this)
     }
 
 
@@ -44,13 +44,20 @@ class UnitLog (var unit: Unit){
             Events.on(EventType.UnitDeadEvent::class.java) {
                 die(it.unit, Instant.now())
             }
+
+            Events.on(EventType.UnitDespawnEvent::class.java) {
+                despawn(it.unit, Instant.now())
+            }
         }
 
         private fun die(unit: Unit, time: Instant) {
             val log = trackedUnits.get(unit.type.id.toInt()).find { t -> t.unit == unit } ?: return
-            log.update()
-            log.unit = Nulls.unit
-            log.deathTime = time
+            log.die(time)
+        }
+
+        private fun despawn(unit: Unit, time: Instant) {
+            val log = trackedUnits.get(unit.type.id.toInt()).find { t -> t.unit == unit } ?: return
+            log.despawn(time)
         }
 
         fun update() {
@@ -59,6 +66,26 @@ class UnitLog (var unit: Unit){
                         log -> log.update()
                     }}
         }
+
+        private fun getTimeAgo(time: Instant): String = UI.formatMinutesFromMillis(Time.timeSinceMillis(time.toEpochMilli()))
+    }
+
+    fun die(time: Instant) {
+        update()
+        deathTime = time
+        if(prevController != controller || (unit != Nulls.unit && (prevController as? LogicAI)?.controller?.lastAccessed != (controller as? LogicAI)?.controller?.lastAccessed)){
+            interactor = unit.toInteractor()
+            prevController = controller
+        }
+        unit = Nulls.unit
+    }
+
+    fun despawn(time: Instant) {
+        x = unit.x
+        y = unit.y
+        flag = unit.flag
+        deathTime = time
+        unit = Nulls.unit
     }
 
     fun update() {
@@ -66,10 +93,13 @@ class UnitLog (var unit: Unit){
         controller = unit.controller()
         x = unit.x
         y = unit.y
+        flag = unit.flag
     }
 
+    fun getIdFlag() : String = if(isLogicControlled()) "$id ([gray]flag: [white]${flag.toInt()})" else id
+
     fun getController(isHovered: Boolean) : String {
-        if(prevController != controller || (prevController as? LogicAI)?.controller?.lastAccessed != (controller as? LogicAI)?.controller?.lastAccessed){
+        if(prevController != controller || (unit != Nulls.unit && (prevController as? LogicAI)?.controller?.lastAccessed != (controller as? LogicAI)?.controller?.lastAccessed)){
             interactor = unit.toInteractor()
             controller = prevController
         }
@@ -80,18 +110,16 @@ class UnitLog (var unit: Unit){
         return interactor.name
     }
 
-    fun getControllerX() : Float = controller.unit().x
-    fun getControllerY() : Float = controller.unit().y
+    fun getControllerX() : Float = (controller as? LogicAI)?.controller?.x ?: controller.unit().x
+    fun getControllerY() : Float = (controller as? LogicAI)?.controller?.y ?: controller.unit().y
+    fun getLogicController() : LogicAI? = controller as? LogicAI
 
     fun isLogicControlled() : Boolean = controller is LogicAI
 
-    private val context: MathContext = MathContext(2, RoundingMode.HALF_UP)
     fun getCoordsString() : String {
         //return "At: [sky](%.2f, %.2f)".format(World.conv(x), World.conv(y)) //format slow
         return "At: [salmon](${(World.conv(x)*100f+0.5f).toInt()/100f}, ${(World.conv(y)*100f+0.5f).toInt()/100f})"
     }
-
-    private fun getTimeAgo(time: Instant): String = UI.formatMinutesFromMillis(Time.timeSinceMillis(time.toEpochMilli()))
 
     fun getBornTime() : String {
         if(bornTime == Instant.EPOCH) return ""
