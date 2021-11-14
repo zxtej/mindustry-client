@@ -2,6 +2,7 @@ package mindustry.client.ui;
 
 import arc.*;
 import arc.math.geom.*;
+import arc.scene.*;
 import arc.scene.event.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
@@ -29,43 +30,13 @@ public class UnitTracker extends BaseDialog {
                 int cols = Math.max((int) (Core.graphics.getWidth() / Scl.scl(400)), 1);
 
                 logTable.clear();
+                logTable.defaults().margin(5f).pad(5f).growY();
                 int i = 0;
 
-                float iconSize = 64f;
                 for (UnitType u : content.units()) {
                     if (selectedTags.any() && !selectedTags.contains(u)) continue;
                     for (UnitLog log : trackedUnits.get(u.id)) {
-                        logTable.button(frame -> {
-                            frame.table(t -> {
-                                t.image(u.uiIcon).size(iconSize).growY().align(Align.right);
-                                t.table(t2 -> {
-                                    t2.defaults().growX().left();
-                                    t2.labelWrap(log::getIdFlag);
-                                    t2.row();
-                                    t2.button(b -> b.labelWrap(() -> log.getController(Core.input.shift())).left().grow(), Styles.nonet, () -> {
-                                        if(!Core.input.shift() || !log.isLogicControlled()) return;
-                                        if(control.input instanceof DesktopInput di) di.panning = true;
-                                        //lastSentPos.set(log.getControllerX(), log.getControllerY());
-                                        var controller = log.getLogicController();
-                                        if(controller == null) return;
-                                        Spectate.INSTANCE.spectate(log.getLogicController().controller);
-                                    }).disabled(b -> !log.isLogicControlled());
-                                    t2.row();
-                                    t2.button(b -> b.labelWrap(log::getCoordsString).left().grow(), Styles.nonet, () -> {
-                                        if(Core.input.shift()) Spectate.INSTANCE.spectate(log.getUnit() == Nulls.unit? Tmp.v5.set(log.getX(), log.getY()):log.getUnit());
-                                    });
-                                    t2.row();
-                                    t2.label(log::getBornTime);
-                                    t2.row();
-                                    t2.label(log::getDeathTime);
-                                    t2.row();
-                                }).pad(4).width(370f - iconSize).growY();
-                            });
-                        }, Styles.cleari, () -> {}).margin(5f).pad(5f).growY().self(t -> t.update(frame -> {
-                            if(frame.getHeight() > t.minHeight()) t.minHeight(frame.getHeight());
-                            Vec2 bottom = frame.localToStageCoordinates(Tmp.v1.set(0,0)); //bottom left
-                            t.touchable(bottom.y + frame.getHeight() < 0 || bottom.y > Core.graphics.getHeight()? Touchable.disabled:Touchable.childrenOnly);
-                        }));
+                        log.getView(logTable, false);
                         if (++i % cols == 0) {
                             logTable.row();
                         }
