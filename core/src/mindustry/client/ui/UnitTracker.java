@@ -1,17 +1,10 @@
 package mindustry.client.ui;
 
 import arc.*;
-import arc.math.geom.*;
-import arc.scene.*;
-import arc.scene.event.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
-import arc.util.*;
-import mindustry.client.*;
 import mindustry.client.antigrief.*;
 import mindustry.game.*;
-import mindustry.gen.*;
-import mindustry.input.*;
 import mindustry.type.*;
 import mindustry.ui.*;
 import mindustry.ui.dialogs.*;
