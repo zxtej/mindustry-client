@@ -1,30 +1,24 @@
 package mindustry.client.antigrief
 
-import arc.Core
-import arc.Events
-import arc.func.Cons
-import arc.math.geom.Vec2
-import arc.scene.event.Touchable
-import arc.scene.ui.Button
-import arc.scene.ui.layout.Cell
-import arc.scene.ui.layout.Table
-import arc.util.Align
-import arc.util.Log
-import arc.util.Time
-import arc.util.Tmp
-import mindustry.Vars
-import mindustry.ai.types.LogicAI
+import arc.*
+import arc.func.*
+import arc.math.geom.*
+import arc.scene.event.*
+import arc.scene.ui.*
+import arc.scene.ui.layout.*
+import arc.util.*
+import mindustry.Vars.*
+import mindustry.ai.types.*
 import mindustry.client.ClientVars.*
 import mindustry.client.Spectate.spectate
-import mindustry.core.UI
-import mindustry.core.World
+import mindustry.core.*
 import mindustry.entities.units.UnitController
-import mindustry.game.EventType
+import mindustry.game.*
 import mindustry.gen.*
 import mindustry.gen.Unit
-import mindustry.input.DesktopInput
-import mindustry.type.UnitType
-import mindustry.ui.Styles
+import mindustry.input.*
+import mindustry.type.*
+import mindustry.ui.*
 import java.time.Instant
 
 class UnitLog (var unit: Unit){
@@ -44,7 +38,7 @@ class UnitLog (var unit: Unit){
     private lateinit var update: Cons<Cell<Button>>
 
     init {
-        if(!Vars.world.isGenerating && !Vars.netClient.isConnecting) {
+        if(!world.isGenerating && !netClient.isConnecting) {
             bornTime = Instant.now()
         }
         trackedUnits.get(typeId).add(this)
@@ -160,7 +154,7 @@ class UnitLog (var unit: Unit){
                     t2.row()
                     t2.button({ b: Button -> b.labelWrap{ getController(Core.input.shift()) }.left().grow() }, Styles.nonet, lambda@ {
                         if(!Core.input.shift() || !isLogicControlled()) return@lambda
-                        (Vars.control.input as? DesktopInput)?.panning = true
+                        (control.input as? DesktopInput)?.panning = true
                         lastSentPos.set(getControllerX(), getControllerY())
                         spectate(getLogicController()?.controller?: return@lambda)
                     }).disabled { !isLogicControlled() }
