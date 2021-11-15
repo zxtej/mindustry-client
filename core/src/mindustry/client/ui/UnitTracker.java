@@ -24,16 +24,16 @@ public class UnitTracker extends BaseDialog {
 
                 logTable.clear();
                 logTable.defaults().margin(5f).pad(5f).growY();
-                int i = 0;
+                int[] i = {0};
 
                 for (UnitType u : content.units()) {
                     if (selectedTags.any() && !selectedTags.contains(u)) continue;
-                    for (UnitLog log : trackedUnits.get(u.id)) {
+                    trackedUnits.get(u.id).values().forEach(log -> {
                         log.getView(logTable, false);
-                        if (++i % cols == 0) {
+                        if (++i[0] % cols == 0) {
                             logTable.row();
                         }
-                    }
+                    });
                 }
             };
 

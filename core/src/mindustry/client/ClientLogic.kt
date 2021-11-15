@@ -1,7 +1,7 @@
 package mindustry.client
 
 import arc.*
-import arc.struct.Seq
+import arc.struct.*
 import arc.util.*
 import mindustry.*
 import mindustry.client.ClientVars.*
@@ -69,7 +69,7 @@ class ClientLogic {
 
             Navigation.navigator.init()
             trackedUnits.setSize(Vars.content.units().size)
-            for(i in 0 until Vars.content.units().size) trackedUnits.set(i, Seq(0))
+            for(i in 0 until Vars.content.units().size) trackedUnits.set(i, IntMap())
 
             Core.settings.getBoolOnce("client730") { Core.settings.put("disablemonofont", true) } // FINISHME: Remove later
 

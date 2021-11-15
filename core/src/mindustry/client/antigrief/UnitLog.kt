@@ -33,19 +33,24 @@ class UnitLog (var unit: Unit){
     private val typeId = type.id.toInt()
     private var bornTime: Instant = Instant.EPOCH
     private var deathTime: Instant = Instant.EPOCH
-    private val coordsRegex: Regex = "(\\([\\d.]*, [\\d.]*\\)) accessed by".toRegex()
     private lateinit var view: Button
-    private lateinit var update: Cons<Cell<Button>>
+    private lateinit var updateCons: Cons<Cell<Button>>
 
     init {
-        if(!world.isGenerating && !netClient.isConnecting) {
-            bornTime = Instant.now()
+        val log : UnitLog? = trackedUnits.get(typeId).get(unit.id)
+        if(syncing && log != null) {
+            log.unit = this.unit
+        } else {
+            if(syncing || Time.timeSinceMillis(lastJoinTime) > 10000f) {
+                bornTime = Instant.now()
+            }
+            trackedUnits.get(typeId).put(unit.id, this)
         }
-        trackedUnits.get(typeId).add(this)
     }
 
 
     companion object {
+        val coordsRegex: Regex = "(\\([\\d.]*, [\\d.]*\\)) accessed by".toRegex()
         const val iconSize = 64f
         init {
             Events.on(EventType.UnitDeadEvent::class.java) {
@@ -58,20 +63,17 @@ class UnitLog (var unit: Unit){
         }
 
         private fun die(unit: Unit, time: Instant) {
-            val log = trackedUnits.get(unit.type.id.toInt()).find { t -> t.unit === unit } ?: return
-            log.die(time)
+            trackedUnits.get(unit.type.id.toInt()).get(unit.id)?.die(time) ?: return
         }
 
         private fun despawn(unit: Unit, time: Instant) {
-            val log = trackedUnits.get(unit.type.id.toInt()).find { t -> t.unit === unit } ?: return
-            log.despawn(time)
+            trackedUnits.get(unit.type.id.toInt()).get(unit.id)?.despawn(time) ?: return
         }
 
         fun update() {
-            trackedUnits.each {
-                    it.each {
-                        log -> log.update()
-                    }}
+            trackedUnits.each { map ->
+                map.values().forEach { it.update()}
+            }
         }
 
         private fun getTimeAgo(time: Instant): String = UI.formatMinutesFromMillis(Time.timeSinceMillis(time.toEpochMilli()))
@@ -97,7 +99,7 @@ class UnitLog (var unit: Unit){
     }
 
     fun update() {
-        if(unit === Nulls.unit) return
+        if(!unit.isAdded) return // Nulls.unit also returns false for isAdded
         controller = unit.controller()
         x = unit.x
         y = unit.y
@@ -141,7 +143,7 @@ class UnitLog (var unit: Unit){
 
     fun getView(logTable: Table, refresh: Boolean) {
         if(!refresh && this::view.isInitialized){
-            logTable.add(view).self(update).minHeight(0f)
+            logTable.add(view).self(updateCons).minHeight(0f)
             return
         }
         view = Button(Styles.cleari)
@@ -171,7 +173,7 @@ class UnitLog (var unit: Unit){
             }
         }).get(view)
 
-        update = Cons { t: Cell<Button> ->
+        updateCons = Cons { t: Cell<Button> ->
             t.update { frame: Button ->
                 if (frame.height > t.minHeight()) t.minHeight(frame.height)
                 val bottom = frame.localToStageCoordinates(Tmp.v1.set(0f, 0f)) //bottom left
@@ -179,6 +181,6 @@ class UnitLog (var unit: Unit){
             }
         }
 
-        logTable.add(view).self(update)
+        logTable.add(view).self(updateCons)
     }
 }
