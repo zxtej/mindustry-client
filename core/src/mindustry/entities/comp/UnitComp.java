@@ -11,6 +11,7 @@ import arc.util.*;
 import mindustry.ai.*;
 import mindustry.ai.types.*;
 import mindustry.annotations.Annotations.*;
+import mindustry.client.antigrief.*;
 import mindustry.client.navigation.*;
 import mindustry.content.*;
 import mindustry.core.*;
@@ -337,6 +338,8 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
         if(count() > cap() && !spawnedByCore && !dead && !state.rules.editor){
             Call.unitCapDeath(self());
             team.data().updateCount(type, -1);
+        } else if(team == player.team()){
+            new UnitLog(self());
         }
     }
 
