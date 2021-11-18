@@ -35,9 +35,6 @@ public class UnitTracker extends BaseDialog {
     private final Seq<UnitType> selectedTags = new Seq<>();
 
     Table entryTable;
-    Seq<String> filterTypes = new Seq<>();
-    Seq<TextField> textFields = new Seq<>();
-    Seq<Integer> selected = new Seq<>();
     Seq<SortEntry> sortEntries = new Seq<>();
     public int entries = 0;
 
@@ -141,6 +138,9 @@ public class UnitTracker extends BaseDialog {
     }
 
     class SortEntry extends Table{
+        String filterType = "";
+        TextField textField;
+        int selected = 0;
         int index;
 
         private void build(){
@@ -167,9 +167,6 @@ public class UnitTracker extends BaseDialog {
             for(int i = index; i < entries; i++){
                 sortEntries.get(i).index++;
             }
-            filterTypes.insert(index, "");
-            textFields.insert(index, null);
-            selected.insert(index, 0);
             sortEntries.insert(index, this);
             entries++;
             build();
@@ -180,9 +177,6 @@ public class UnitTracker extends BaseDialog {
             for(int i = loc+1; i < entries; i++){
                 sortEntries.get(i).index--;
             }
-            filterTypes.remove(loc);
-            textFields.remove(loc);
-            selected.remove(loc);
             sortEntries.remove(loc);
             entries--;
         }
@@ -247,54 +241,53 @@ public class UnitTracker extends BaseDialog {
             entry.align(Align.left | Align.center);
             entry.label(() -> "Criteria " + (index + 1) + ":");
 
-            var field = entry.field(filterTypes.get(index), Styles.nodeField, str -> filterTypes.set(index, str)).size(288f, 40f).pad(2f).maxTextLength(LAssembler.maxTokenLength).padRight(0f).get();
-            field.update(() -> field.setColor(field.getText()/*.isBlank()*/.trim().isEmpty()? Color.white : fieldValidator.get(field.getText())? accept : deny)); // String.isBlank is not available in JDK <11 bruh)
-            textFields.set(index, field);
+            var field = textField = entry.field(filterType, Styles.nodeField, str -> filterType = str).size(288f, 40f).pad(2f).maxTextLength(LAssembler.maxTokenLength).padRight(0f).get();
+            textField.update(() -> field.setColor(field.getText().trim().isEmpty()? Color.white : fieldValidator.get(field.getText())? accept : deny));
 
             entry.button(b -> {
                 b.image(Icon.pencilSmall);
                 b.clicked(() -> showSelectTable(b, (t2, hide) -> {
                     Table[] tables = {
-                            //items
-                            new Table(i -> {
-                                i.left();
-                                int c = 0;
-                                for (Item item : content.items()) {
-                                    if (!item.unlockedNow()) continue;
-                                    i.button(new TextureRegionDrawable(item.uiIcon), Styles.cleari, iconSmall, () -> {
-                                        stype("@" + item.name);
-                                        hide.run();
-                                    }).size(40f);
+                        //items
+                        new Table(i -> {
+                            i.left();
+                            int c = 0;
+                            for (Item item : content.items()) {
+                                if (!item.unlockedNow()) continue;
+                                i.button(new TextureRegionDrawable(item.uiIcon), Styles.cleari, iconSmall, () -> {
+                                    stype("@" + item.name);
+                                    hide.run();
+                                }).size(40f);
 
-                                    if (++c % 6 == 0) i.row();
-                                }
-                            }),
-                            //sensors
-                            new Table(i -> {
-                                for (LAccess sensor : LAccess.senseable) {
-                                    i.button(sensor.name(), Styles.cleart, () -> {
-                                        stype("@" + sensor.name());
-                                        hide.run();
-                                    }).size(240f, 40f).self(c -> tooltip(c, sensor)).row();
-                                }
-                            })
+                                if (++c % 6 == 0) i.row();
+                            }
+                        }),
+                        //sensors
+                        new Table(i -> {
+                            for (LAccess sensor : LAccess.senseable) {
+                                i.button(sensor.name(), Styles.cleart, () -> {
+                                    stype("@" + sensor.name());
+                                    hide.run();
+                                }).size(240f, 40f).self(c -> tooltip(c, sensor)).row();
+                            }
+                        })
                     };
                     Drawable[] icons = {Icon.box, Icon.tree};
-                    Stack stack = new Stack(tables[selected.get(index)]);
+                    Stack stack = new Stack(tables[selected]);
                     ButtonGroup<Button> group = new ButtonGroup<>();
 
                     for (int i = 0; i < tables.length; i++) {
                         int fi = i;
 
                         t2.button(icons[i], Styles.clearTogglei, () -> {
-                            selected.set(index, fi);
+                            selected = fi;
 
                             stack.clearChildren();
-                            stack.addChild(tables[selected.get(index)]);
+                            stack.addChild(tables[selected]);
 
                             t2.parent.parent.pack();
                             t2.parent.parent.invalidateHierarchy();
-                        }).height(50f).growX().checked(selected.get(index) == fi).group(group);
+                        }).height(50f).growX().checked(selected == fi).group(group);
                     }
                     t2.row();
                     t2.add(stack).colspan(3).width(240f).left();
@@ -304,8 +297,7 @@ public class UnitTracker extends BaseDialog {
         }
 
         private void stype(String text){
-            textFields.get(index).setText(text);
-            filterTypes.set(index, text);
+            textField.setText(filterType = text);
         }
     }
 }
