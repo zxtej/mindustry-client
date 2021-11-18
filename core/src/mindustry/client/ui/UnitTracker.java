@@ -25,15 +25,21 @@ import static mindustry.client.ClientVars.*;
 import static mindustry.logic.LCanvas.tooltip;
 
 public class UnitTracker extends BaseDialog {
-    private static final float tagh = 42f;
-    private Runnable rebuildPane = () -> {}, rebuildTags = () -> {}, rebuildSortCriteria = () -> {};
-    private final Seq<UnitType> selectedTags = new Seq<>();
-    String filterType = "";
-    private transient TextField textField;
-    private transient int selected = 0;
+    private static final float tagh = 42f, entryh = 60f;
     static Seq<String> acceptedFields = new Seq<>();
     static Boolf<String> fieldValidator = str -> acceptedFields.contains(str.trim());
     static Color accept = Colors.get("GREEN"), deny = Colors.get("RED");
+
+    private Runnable rebuildPane = () -> {}, rebuildTags = () -> {}, rebuildCriteria;
+
+    private final Seq<UnitType> selectedTags = new Seq<>();
+
+    Table entryTable;
+    Seq<String> filterTypes = new Seq<>();
+    Seq<TextField> textFields = new Seq<>();
+    Seq<Integer> selected = new Seq<>();
+    Seq<SortEntry> sortEntries = new Seq<>();
+    public int entries = 0;
 
     private Table logTable;
     {
@@ -66,6 +72,22 @@ public class UnitTracker extends BaseDialog {
             if(!syncing) rebuildPane.run();
         });
     }
+    {
+        rebuildCriteria = () -> {
+            entryTable.clear();
+            if(entries == 0){
+                entryTable.button("Add criteria", () -> {
+                    new SortEntry().addLoc();
+                    rebuildCriteria.run();
+                }).growX().height(entryh);
+            } else {
+                sortEntries.each(se -> {
+                    entryTable.add(se).expandY().fillX().align(Align.left);
+                    entryTable.row();
+                });
+            }
+        };
+    }
 
     public UnitTracker(){
         super("@client.unittracker");
@@ -73,6 +95,7 @@ public class UnitTracker extends BaseDialog {
         shown(this::setup);
         onResize(this::setup);
         setup();
+        //hidden(clear everything);
     }
 
     void setup(){
@@ -103,71 +126,12 @@ public class UnitTracker extends BaseDialog {
         }).height(tagh).fillX();
 
         cont.row();
-        cont.table(in -> {
-            in.left();
-            in.table(t -> {
-                rebuildSortCriteria = () -> {
-                    t.clearChildren();
-                    t.align(Align.left | Align.center);
-                    t.add("Criteria 1: ");
-                    textField = t.field(filterType, Styles.nodeField, str -> filterType = str).size(144f, 40f).pad(2f).maxTextLength(LAssembler.maxTokenLength).padRight(0f).get();
-                    textField.update(() -> textField.setColor(textField.getText()/*.isBlank()*/.trim().isEmpty()? Color.white : fieldValidator.get(textField.getText())? accept : deny)); // String.isBlank is not available in JDK <11 bruh)
-
-                    t.button(b -> {
-                        b.image(Icon.pencilSmall);
-                        b.clicked(() -> showSelectTable(b, (t2, hide) -> {
-                            Table[] tables = {
-                                    //items
-                                    new Table(i -> {
-                                        i.left();
-                                        int c = 0;
-                                        for (Item item : content.items()) {
-                                            if (!item.unlockedNow()) continue;
-                                            i.button(new TextureRegionDrawable(item.uiIcon), Styles.cleari, iconSmall, () -> {
-                                                stype("@" + item.name);
-                                                hide.run();
-                                            }).size(40f);
-
-                                            if (++c % 6 == 0) i.row();
-                                        }
-                                    }),
-                                    //sensors
-                                    new Table(i -> {
-                                        for (LAccess sensor : LAccess.senseable) {
-                                            i.button(sensor.name(), Styles.cleart, () -> {
-                                                stype("@" + sensor.name());
-                                                hide.run();
-                                            }).size(240f, 40f).self(c -> tooltip(c, sensor)).row();
-                                        }
-                                    })
-                            };
-                            Drawable[] icons = {Icon.box, Icon.tree};
-                            Stack stack = new Stack(tables[selected]);
-                            ButtonGroup<Button> group = new ButtonGroup<>();
-
-                            for (int i = 0; i < tables.length; i++) {
-                                int fi = i;
-
-                                t2.button(icons[i], Styles.clearTogglei, () -> {
-                                    selected = fi;
-
-                                    stack.clearChildren();
-                                    stack.addChild(tables[selected]);
-
-                                    t2.parent.parent.pack();
-                                    t2.parent.parent.invalidateHierarchy();
-                                }).height(50f).growX().checked(selected == fi).group(group);
-                            }
-                            t2.row();
-                            t2.add(stack).colspan(3).width(240f).left();
-                        }));
-                    }, Styles.logict, () -> {
-                    }).size(40f).padLeft(-1).self(b -> { if(b.hasElement()) b.get().update(() -> b.get().setColor(textField.color)); });
-                };
-                rebuildSortCriteria.run();
-            }).fillX().expandY().align(Align.left);
-            in.label(() -> Time.millis() + "").fillX().align(Align.right);
-        }).fillX().expandY();
+        if(entryTable != null) entryTable.clear();
+        entryTable = cont.table().growX().expandY().get();
+//        for(int i=0 ; i < entries; i++){
+//            new SortEntry().addLoc();
+//        }
+        rebuildCriteria.run();
         cont.row();
         cont.pane(t -> {
             logTable = t;
@@ -176,63 +140,172 @@ public class UnitTracker extends BaseDialog {
         }).grow().scrollX(false);
     }
 
-    protected void showSelectTable(Button b, Cons2<Table, Runnable> hideCons){
-        Table t = new Table(Tex.paneSolid){
-            @Override
-            public float getPrefHeight(){
-                return Math.min(super.getPrefHeight(), Core.graphics.getHeight());
+    class SortEntry extends Table{
+        int index;
+
+        private void build(){
+            defaults().pad(0f, 5f, 0f, 5f);
+            left();
+            table(this::rebuildSortCriteria).expandY().align(Align.left);
+            add().growX();
+            button(Icon.add, Styles.cleari, () -> {
+                new SortEntry().addLoc(index+1);
+                rebuildCriteria.run();
+            }).grow();
+            button(Icon.cancel, Styles.cleari, () -> {
+                removeLoc(index);
+                rebuildCriteria.run();
+            }).grow();
+        }
+
+        public Table addLoc(){
+            return addLoc(entries);
+        }
+
+        private Table addLoc(int loc){
+            index = Mathf.clamp(loc, 0, entries);
+            for(int i = index; i < entries; i++){
+                sortEntries.get(i).index++;
             }
+            filterTypes.insert(index, "");
+            textFields.insert(index, null);
+            selected.insert(index, 0);
+            sortEntries.insert(index, this);
+            entries++;
+            build();
+            return this;
+        }
 
-            @Override
-            public float getPrefWidth(){
-                return Math.min(super.getPrefWidth(), Core.graphics.getWidth());
+        private void removeLoc(int loc){
+            for(int i = loc+1; i < entries; i++){
+                sortEntries.get(i).index--;
             }
-        };
-        t.margin(4);
+            filterTypes.remove(loc);
+            textFields.remove(loc);
+            selected.remove(loc);
+            sortEntries.remove(loc);
+            entries--;
+        }
 
-        //triggers events behind the element to simulate deselection
-        Element hitter = new Element();
+        protected void showSelectTable(Button b, Cons2<Table, Runnable> hideCons){
+            Table t = new Table(Tex.paneSolid){
+                @Override
+                public float getPrefHeight(){
+                    return Math.min(super.getPrefHeight(), Core.graphics.getHeight());
+                }
 
-        Runnable hide = () -> {
-            Core.app.post(hitter::remove);
-            t.actions(Actions.fadeOut(0.3f, Interp.fade), Actions.remove());
-        };
+                @Override
+                public float getPrefWidth(){
+                    return Math.min(super.getPrefWidth(), Core.graphics.getWidth());
+                }
+            };
+            t.margin(4);
 
-        hitter.fillParent = true;
-        hitter.tapped(hide);
+            //triggers events behind the element to simulate deselection
+            Element hitter = new Element();
 
-        Core.scene.add(hitter);
-        Core.scene.add(t);
+            Runnable hide = () -> {
+                Core.app.post(hitter::remove);
+                t.actions(Actions.fadeOut(0.3f, Interp.fade), Actions.remove());
+            };
 
-        t.update(() -> {
-            if(b.parent == null || !b.isDescendantOf(Core.scene.root)){
-                Core.app.post(() -> {
-                    hitter.remove();
-                    t.remove();
-                });
-                return;
-            }
+            hitter.fillParent = true;
+            hitter.tapped(hide);
 
-            b.localToStageCoordinates(Tmp.v1.set(b.getWidth()/2f, b.getHeight()/2f));
-            t.setPosition(Tmp.v1.x, Tmp.v1.y, Align.center);
-            if(t.getWidth() > Core.scene.getWidth()) t.setWidth(Core.graphics.getWidth());
-            if(t.getHeight() > Core.scene.getHeight()) t.setHeight(Core.graphics.getHeight());
-            t.keepInStage();
-            t.invalidateHierarchy();
+            Core.scene.add(hitter);
+            Core.scene.add(t);
+
+            t.update(() -> {
+                if(b.parent == null || !b.isDescendantOf(Core.scene.root)){
+                    Core.app.post(() -> {
+                        hitter.remove();
+                        t.remove();
+                    });
+                    return;
+                }
+
+                b.localToStageCoordinates(Tmp.v1.set(b.getWidth()/2f, b.getHeight()/2f));
+                t.setPosition(Tmp.v1.x, Tmp.v1.y, Align.center);
+                if(t.getWidth() > Core.scene.getWidth()) t.setWidth(Core.graphics.getWidth());
+                if(t.getHeight() > Core.scene.getHeight()) t.setHeight(Core.graphics.getHeight());
+                t.keepInStage();
+                t.invalidateHierarchy();
+                t.pack();
+            });
+            t.actions(Actions.alpha(0), Actions.fadeIn(0.3f, Interp.fade));
+
+            t.top().pane(inner -> {
+                inner.top();
+                hideCons.get(inner, hide);
+            }).pad(0f).top().scrollX(false);
+
             t.pack();
-        });
-        t.actions(Actions.alpha(0), Actions.fadeIn(0.3f, Interp.fade));
+        }
 
-        t.top().pane(inner -> {
-            inner.top();
-            hideCons.get(inner, hide);
-        }).pad(0f).top().scrollX(false);
+        private void rebuildSortCriteria(Table entry){
+            entry.clearChildren();
+            entry.align(Align.left | Align.center);
+            entry.label(() -> "Criteria " + (index + 1) + ":");
 
-        t.pack();
-    }
+            var field = entry.field(filterTypes.get(index), Styles.nodeField, str -> filterTypes.set(index, str)).size(288f, 40f).pad(2f).maxTextLength(LAssembler.maxTokenLength).padRight(0f).get();
+            field.update(() -> field.setColor(field.getText()/*.isBlank()*/.trim().isEmpty()? Color.white : fieldValidator.get(field.getText())? accept : deny)); // String.isBlank is not available in JDK <11 bruh)
+            textFields.set(index, field);
 
-    private void stype(String text){
-        textField.setText(text);
-        this.filterType = text;
+            entry.button(b -> {
+                b.image(Icon.pencilSmall);
+                b.clicked(() -> showSelectTable(b, (t2, hide) -> {
+                    Table[] tables = {
+                            //items
+                            new Table(i -> {
+                                i.left();
+                                int c = 0;
+                                for (Item item : content.items()) {
+                                    if (!item.unlockedNow()) continue;
+                                    i.button(new TextureRegionDrawable(item.uiIcon), Styles.cleari, iconSmall, () -> {
+                                        stype("@" + item.name);
+                                        hide.run();
+                                    }).size(40f);
+
+                                    if (++c % 6 == 0) i.row();
+                                }
+                            }),
+                            //sensors
+                            new Table(i -> {
+                                for (LAccess sensor : LAccess.senseable) {
+                                    i.button(sensor.name(), Styles.cleart, () -> {
+                                        stype("@" + sensor.name());
+                                        hide.run();
+                                    }).size(240f, 40f).self(c -> tooltip(c, sensor)).row();
+                                }
+                            })
+                    };
+                    Drawable[] icons = {Icon.box, Icon.tree};
+                    Stack stack = new Stack(tables[selected.get(index)]);
+                    ButtonGroup<Button> group = new ButtonGroup<>();
+
+                    for (int i = 0; i < tables.length; i++) {
+                        int fi = i;
+
+                        t2.button(icons[i], Styles.clearTogglei, () -> {
+                            selected.set(index, fi);
+
+                            stack.clearChildren();
+                            stack.addChild(tables[selected.get(index)]);
+
+                            t2.parent.parent.pack();
+                            t2.parent.parent.invalidateHierarchy();
+                        }).height(50f).growX().checked(selected.get(index) == fi).group(group);
+                    }
+                    t2.row();
+                    t2.add(stack).colspan(3).width(240f).left();
+                }));
+            }, Styles.logict, () -> {
+            }).size(40f).padLeft(-1).self(b -> { if(b.hasElement()) b.get().update(() -> b.get().setColor(field.color)); });
+        }
+
+        private void stype(String text){
+            textFields.get(index).setText(text);
+            filterTypes.set(index, text);
+        }
     }
 }
