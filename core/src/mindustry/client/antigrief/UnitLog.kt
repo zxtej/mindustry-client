@@ -3,25 +3,33 @@ package mindustry.client.antigrief
 import arc.*
 import arc.func.*
 import arc.math.geom.*
+import arc.scene.Element
 import arc.scene.event.*
 import arc.scene.ui.*
 import arc.scene.ui.layout.*
+import arc.struct.Seq
 import arc.util.*
 import mindustry.Vars.*
 import mindustry.ai.types.*
 import mindustry.client.ClientVars.*
 import mindustry.client.Spectate.spectate
+import mindustry.client.utils.Pair
 import mindustry.core.*
+import mindustry.ctype.Content
 import mindustry.entities.units.UnitController
 import mindustry.game.*
 import mindustry.gen.*
 import mindustry.gen.Unit
 import mindustry.input.*
+import mindustry.logic.GlobalConstants
+import mindustry.logic.LAccess
+import mindustry.logic.Senseable
 import mindustry.type.*
 import mindustry.ui.*
 import java.time.Instant
 
 class UnitLog (var unit: Unit){
+    //TODO: blockUnitUnit for thing
     val type: UnitType = unit.type
     private var controller: UnitController = unit.controller()
     private var prevController = controller
@@ -34,22 +42,28 @@ class UnitLog (var unit: Unit){
     private var bornTime: Instant = Instant.EPOCH
     private var deathTime: Instant = Instant.EPOCH
     private lateinit var view: Button
+    private lateinit var dudView: Element
     private lateinit var updateCons: Cons<Cell<Button>>
+    private val senseSnapshotString: StringBuilder = StringBuilder("");
+    @JvmField val senseSnapshot: Seq<Double> = Seq()
 
     init {
-        val log : UnitLog? = trackedUnits.get(typeId).get(unit.id)
-        if(syncing && log != null) {
-            log.unit = this.unit
-        } else {
-            if(syncing || Time.timeSinceMillis(lastJoinTime) > 10000f) {
-                bornTime = Instant.now()
+        synchronized (trackedUnits) {
+            val log: UnitLog? = trackedUnits.get(typeId).get(unit.id)
+            if (syncing && log != null) {
+                log.unit = this.unit
+            } else {
+                if (syncing || Time.timeSinceMillis(lastJoinTime) > 10000f) {
+                    bornTime = Instant.now()
+                }
+                trackedUnits.get(typeId).put(unit.id, this)
             }
-            trackedUnits.get(typeId).put(unit.id, this)
         }
     }
 
 
     companion object {
+        var viewHeight: Float = 0f
         val coordsRegex: Regex = "(\\([\\d.]*, [\\d.]*\\)) accessed by".toRegex()
         const val iconSize = 64f
         init {
@@ -71,8 +85,10 @@ class UnitLog (var unit: Unit){
         }
 
         fun update() {
-            trackedUnits.each { map ->
-                map.values().forEach { it.update()}
+            synchronized (trackedUnits) {
+                trackedUnits.each { map ->
+                    map.values().forEach { it.update() }
+                }
             }
         }
 
@@ -100,13 +116,64 @@ class UnitLog (var unit: Unit){
 
     fun update() {
         if(!unit.isAdded) return // Nulls.unit also returns false for isAdded
-        controller = unit.controller()
-        x = unit.x
-        y = unit.y
-        flag = unit.flag
-        if(prevController !== controller || (unit !== Nulls.unit && (prevController as? LogicAI)?.controller?.lastAccessed != (controller as? LogicAI)?.controller?.lastAccessed)){
-            interactor = unit.toInteractor()
-            controller = prevController
+        synchronized (this) {
+            controller = unit.controller()
+            x = unit.x
+            y = unit.y
+            flag = unit.flag
+            if (prevController !== controller || (unit !== Nulls.unit && (prevController as? LogicAI)?.controller?.lastAccessed != (controller as? LogicAI)?.controller?.lastAccessed)) {
+                interactor = unit.toInteractor()
+                prevController = controller
+            }
+        }
+    }
+
+    fun sense(v: Any) : Double {
+//        if(v is Content) return unit.sense(v)
+//        if(v is LAccess){
+//            if(unit == Nulls.unit) return nullSense(v)
+//            val value: Any = unit.senseObject(v)
+//            return if(value == Senseable.noSensed){
+//                unit.sense(v)
+//            } else value.hashCode().toDouble()
+//        }
+//        return 0.0
+        if(v is Content) return unit.sense(v)
+        if(v !is LAccess) return 0.0
+        synchronized (this) {
+            return when (v) {
+                LAccess.type -> typeId
+                LAccess.x -> World.conv(x)
+                LAccess.y -> World.conv(y)
+                LAccess.size -> type.hitSize / tilesize
+                LAccess.range -> type.range
+                LAccess.flag -> flag
+                LAccess.controller -> controller.hashCode()
+                LAccess.controlled -> when (controller) {
+                    is LogicAI -> GlobalConstants.ctrlProcessor
+                    is Player -> GlobalConstants.ctrlPlayer
+                    is FormationAI -> GlobalConstants.ctrlFormation
+                    else -> 0.0
+                }
+                LAccess.team -> player.team().hashCode()
+                else -> {
+                    val value = unit.senseObject(v)
+                    if (value === Senseable.noSensed) {
+                        unit.sense(v)
+                    } else value.hashCode()
+                }
+            }.toDouble()
+        }
+    }
+
+    fun updateSnapshotText() {
+        synchronized (senseSnapshotString) {
+            senseSnapshotString.clear()
+            for (i in 0 until senseSnapshot.size) {
+                senseSnapshotString.append(ui.unitTracker.sortEntriesTemp.get(i).accessVariable.name).append(": ")
+                    .append((senseSnapshot.get(i) * 100f + 0.5f).toInt().div(100f)).append("\n")
+            }
+            senseSnapshotString.removeSuffix("\n")
         }
     }
 
@@ -141,10 +208,9 @@ class UnitLog (var unit: Unit){
         return "Died " + getTimeAgo(deathTime) + " ago"
     }
 
-    fun getView(logTable: Table, refresh: Boolean) {
+    fun getView(logTable: Table, refresh: Boolean) : Pair<Cell<Button>, Cons<Cell<Button>>>/*Pair<out Element, Cons<out Cell<out Element>>>*/ {
         if(!refresh && this::view.isInitialized){
-            logTable.add(view).self(updateCons).minHeight(0f)
-            return
+            return Pair(logTable.add(view), updateCons)
         }
         view = Button(Styles.cleari)
         (Cons { frame: Button ->
@@ -169,18 +235,21 @@ class UnitLog (var unit: Unit){
                     t2.row()
                     t2.label { getDeathTime() }
                     t2.row()
+                    t2.label { synchronized(senseSnapshotString) { senseSnapshotString.toString() }}.with {l -> l.height = if (l.text.isEmpty()) 0f else l.prefHeight}
+                    t2.row()
                 }.pad(4f).width(370f - iconSize).growY()
             }
         }).get(view)
 
         updateCons = Cons { t: Cell<Button> ->
             t.update { frame: Button ->
-                if (frame.height > t.minHeight()) t.minHeight(frame.height)
+                if (frame.height > viewHeight) viewHeight = frame.height
+                t.minHeight(viewHeight)
                 val bottom = frame.localToStageCoordinates(Tmp.v1.set(0f, 0f)) //bottom left
                 frame.touchable { if (bottom.y + frame.height < 0 || bottom.y > Core.graphics.height) Touchable.disabled else Touchable.enabled }
             }
         }
 
-        logTable.add(view).self(updateCons)
+        return Pair(logTable.add(view), updateCons)
     }
 }

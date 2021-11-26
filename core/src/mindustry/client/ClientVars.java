@@ -20,7 +20,8 @@ public class ClientVars {
     // Hotkeys
     public static boolean showingTurrets, hidingUnits, hidingAirUnits, hidingBlocks, dispatchingBuildPlans, showingOverdrives;
     @NotNull public static Seq<OverdriveProjector.OverdriveBuild> overdrives = new Seq<>(); // For whatever reason the stupid allBuildings method hates me so im just not using it
-    @NotNull public static Seq<IntMap<UnitLog>> trackedUnits = new Seq<>(0); // placeholder
+    @NotNull public static final Seq<IntMap<UnitLog>> trackedUnits = new Seq<>(0); // placeholder
+    @NotNull public static final  Seq<UnitLog> shownTrackedUnits = new Seq<>(), shownTrackedUnitsTemp = new Seq<>();
 
     // Commands
     @NotNull public static CommandHandler clientCommandHandler = new CommandHandler("!");
