@@ -6,6 +6,7 @@ import arc.graphics.*;
 import arc.math.*;
 import arc.scene.*;
 import arc.scene.actions.*;
+import arc.scene.event.*;
 import arc.scene.style.*;
 import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
@@ -13,6 +14,8 @@ import arc.scene.ui.layout.Stack;
 import arc.struct.*;
 import arc.util.*;
 import mindustry.*;
+import mindustry.client.antigrief.*;
+import mindustry.client.utils.*;
 import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.logic.*;
@@ -26,19 +29,22 @@ import static mindustry.logic.LCanvas.tooltip;
 
 public class UnitTracker extends BaseDialog {
     private static final float tagh = 42f, entryh = 60f;
-    static Seq<String> acceptedFields = new Seq<>();
+    public static final Seq<String> acceptedFields = new Seq<>();
     static Boolf<String> fieldValidator = str -> acceptedFields.contains(str.trim());
-    static Color accept = Colors.get("GREEN"), deny = Colors.get("RED");
+    static final Color accept = Colors.get("GREEN"), deny = Colors.get("RED");
 
-    private Runnable rebuildPane = () -> {}, rebuildTags = () -> {}, rebuildCriteria;
+    private Runnable rebuildPane = () -> {}, rebuildTags = () -> {}, rebuildCriteria, sortCriteria;
 
-    private final Seq<UnitType> selectedTags = new Seq<>();
+    //private final Seq<UnitType> selectedTags = new Seq<>();
+    private final Bits selectedTags = new Bits(Vars.content.units().size);
 
     Table entryTable;
-    Seq<SortEntry> sortEntries = new Seq<>();
+    public final Seq<SortEntry> sortEntries = new Seq<>(), sortEntriesTemp = new Seq<>();
     public int entries = 0;
+    private final boolean[] rebuild = {false}, sorting = {false};
+    private final long[] lastSortTime = {0L};
 
-    private Table logTable;
+    public Table logTable;
     {
         Events.on(EventType.ClientLoadEvent.class, event -> Core.app.post(() -> { // help this is filthy
             rebuildPane = () -> {
@@ -47,15 +53,23 @@ public class UnitTracker extends BaseDialog {
                 logTable.clear();
                 logTable.defaults().margin(5f).pad(5f).growY();
                 int[] i = {0};
+                synchronized (shownTrackedUnits) {
+                    shownTrackedUnits.each(log -> {
+                        var pair = log.getView(logTable, false);
+                        var orig = pair.second;
+                        //TODO: avoid recreating this from scratch all the time
+                        pair.first.self(it -> {
+                            //do something to it
+                            orig.get(it);
+                        });
 
-                for (UnitType u : content.units()) {
-                    if (selectedTags.any() && !selectedTags.contains(u)) continue;
-                    trackedUnits.get(u.id).values().forEach(log -> {
-                        log.getView(logTable, false);
                         if (++i[0] % cols == 0) {
                             logTable.row();
                         }
                     });
+                }
+                synchronized (rebuild) {
+                    rebuild[0] = false;
                 }
             };
 
@@ -63,11 +77,12 @@ public class UnitTracker extends BaseDialog {
 
             acceptedFields.addAll(Vars.content.items().<String>map(i -> "@" + i.name));
             acceptedFields.addAll(new Seq<>(LAccess.senseable).<String>map(s -> "@" + s.name()));
+            acceptedFields.removeAll(it -> it.toLowerCase().contains("liquid") || it.toLowerCase().contains("power"));
+            Seq<String> toRemove = new Seq<>();
+            toRemove.addAll("@heat", "@enabled", "@config");
+            acceptedFields.removeAll(toRemove);
         }));
 
-        Events.on(EventType.WorldLoadEvent.class, event -> {
-            if(!syncing) rebuildPane.run();
-        });
     }
     {
         rebuildCriteria = () -> {
@@ -84,20 +99,99 @@ public class UnitTracker extends BaseDialog {
                 });
             }
         };
+
+        sortCriteria = () -> {
+            synchronized (sorting) {
+                if(sorting[0]) return;
+                sorting[0] = true;
+            }
+            shownTrackedUnitsTemp.clear();
+            synchronized (sortEntries) {
+//                if(sortEntries.isEmpty()){
+//                    synchronized (sorting) {
+//                        sorting[0] = false;
+//                        return;
+//                    }
+//                } //maybe if the thing actually gets that optimized
+                sortEntriesTemp.set(sortEntries);
+            }
+            sortEntriesTemp.filter(t -> t.accessVariable != null);
+            synchronized (trackedUnits) {
+                trackedUnits.each(map -> shownTrackedUnitsTemp.addAll(map.values()));
+            }
+            shownTrackedUnitsTemp.filter(it -> {
+                // filtered unit types
+                for (SortEntry entry : sortEntriesTemp) {
+                    if (!entry.within(it)) return false;
+                }
+                return true;
+            });
+            shownTrackedUnitsTemp.each(ul -> ul.senseSnapshot.setSize(sortEntriesTemp.size));
+            for(int i = 0; i < sortEntriesTemp.size; i++){
+                int fi = i;
+                shownTrackedUnitsTemp.each(ul -> ul.senseSnapshot.set(fi, ul.sense(sortEntriesTemp.get(fi).accessVariable.objval)));
+            }
+            shownTrackedUnitsTemp.each(UnitLog::updateSnapshotText);
+            try {
+                shownTrackedUnitsTemp.sort((a, b) -> {
+                    for (int i = 0; i < sortEntriesTemp.size; i++) {
+                        int diff = a.senseSnapshot.get(i).compareTo(b.senseSnapshot.get(i));
+                        if (diff == 0) continue;
+                        return diff;
+                    }
+                    return 0;
+                });
+            } catch (Exception e){
+                Log.err(e);
+            }
+            synchronized (shownTrackedUnits) {
+                shownTrackedUnits.set(shownTrackedUnitsTemp);
+            }
+            synchronized (rebuild) {
+                rebuild[0] = true;
+            }
+            synchronized (sorting) {
+                sorting[0] = false;
+            }
+            synchronized (lastSortTime) {
+                lastSortTime[0] = Time.millis();
+            }
+        };
     }
 
     public UnitTracker(){
         super("@client.unittracker");
         addCloseButton();
-        shown(this::setup);
+        shown(() -> {
+            setup();
+            clientThread.taskQueue.post(sortCriteria);
+        });
         onResize(this::setup);
         setup();
         //hidden(clear everything);
     }
 
+    @Override
+    public void act(float delta) {
+        super.act(delta);
+        synchronized (rebuild) {
+            if (rebuild[0]) rebuildPane.run();
+        }
+        synchronized (lastSortTime) {
+            synchronized (sorting) {
+                if (!sorting[0] && Time.timeSinceMillis(lastSortTime[0]) >= Core.settings.getInt("trackertime", 1000)) {
+                    lastSortTime[0] = Time.millis();
+                    clientThread.taskQueue.post(sortCriteria);
+                }
+            }
+        }
+    }
+
     void setup(){
         cont.top();
         cont.clear();
+
+        sorting[0] = false;
 
         cont.table(in -> {
             in.left();
@@ -108,14 +202,17 @@ public class UnitTracker extends BaseDialog {
 
                     t.defaults().pad(2).height(tagh);
                     for(var tag : content.units()){
+                        int id = tag.id;
                         t.button(Fonts.getUnicodeStr(tag.name), Styles.togglet, () -> {
-                            if(selectedTags.contains(tag)){
-                                selectedTags.remove(tag);
-                            }else{
-                                selectedTags.add(tag);
+                            synchronized (selectedTags) {
+                                if (selectedTags.get(id)) {
+                                    selectedTags.clear(id);
+                                } else {
+                                    selectedTags.set(id);
+                                }
                             }
                             rebuildPane.run();
-                        }).checked(selectedTags.contains(tag)).with(c -> c.getLabel().setWrap(false));
+                        }).checked(selectedTags.get(id)).with(c -> c.getLabel().setWrap(false));
                     }
                 };
                 rebuildTags.run();
@@ -125,9 +222,6 @@ public class UnitTracker extends BaseDialog {
         cont.row();
         if(entryTable != null) entryTable.clear();
         entryTable = cont.table().growX().expandY().get();
-//        for(int i=0 ; i < entries; i++){
-//            new SortEntry().addLoc();
-//        }
         rebuildCriteria.run();
         cont.row();
         cont.pane(t -> {
@@ -137,11 +231,12 @@ public class UnitTracker extends BaseDialog {
         }).grow().scrollX(false);
     }
 
-    class SortEntry extends Table{
+    public class SortEntry extends Table{
         String filterType = "";
         TextField textField;
         int selected = 0;
         int index;
+        public LExecutor.Var accessVariable = null;
 
         private void build(){
             defaults().pad(0f, 5f, 0f, 5f);
@@ -164,21 +259,30 @@ public class UnitTracker extends BaseDialog {
 
         private Table addLoc(int loc){
             index = Mathf.clamp(loc, 0, entries);
-            for(int i = index; i < entries; i++){
-                sortEntries.get(i).index++;
+            synchronized (sortEntries) {
+                for (int i = index; i < entries; i++) {
+                    sortEntries.get(i).index++;
+                }
+                sortEntries.insert(index, this);
             }
-            sortEntries.insert(index, this);
             entries++;
             build();
             return this;
         }
 
         private void removeLoc(int loc){
-            for(int i = loc+1; i < entries; i++){
-                sortEntries.get(i).index--;
+            synchronized (sortEntries) {
+                for (int i = loc + 1; i < entries; i++) {
+                    sortEntries.get(i).index--;
+                }
+                sortEntries.remove(loc);
             }
-            sortEntries.remove(loc);
             entries--;
+        }
+
+        public boolean within(UnitLog it){
+            //TODO: pass
+            return true;
         }
 
         protected void showSelectTable(Button b, Cons2<Table, Runnable> hideCons){
@@ -242,8 +346,13 @@ public class UnitTracker extends BaseDialog {
             entry.label(() -> "Criteria " + (index + 1) + ":");
 
             var field = textField = entry.field(filterType, Styles.nodeField, str -> filterType = str).size(288f, 40f).pad(2f).maxTextLength(LAssembler.maxTokenLength).padRight(0f).get();
-            textField.update(() -> field.setColor(field.getText().trim().isEmpty()? Color.white : fieldValidator.get(field.getText())? accept : deny));
-
+            textField.typed(chr -> field.setColor(field.getText().trim().isEmpty()? Color.white : fieldValidator.get(field.getText())? accept : deny));
+            textField.addListener(new FocusListener(){
+                @Override
+                public void keyboardFocusChanged(FocusListener.FocusEvent event, Element element, boolean focused){
+                    if(!focused) textUpdated(false);
+                }
+            });
             entry.button(b -> {
                 b.image(Icon.pencilSmall);
                 b.clicked(() -> showSelectTable(b, (t2, hide) -> {
@@ -265,6 +374,7 @@ public class UnitTracker extends BaseDialog {
                         //sensors
                         new Table(i -> {
                             for (LAccess sensor : LAccess.senseable) {
+                                if(!acceptedFields.contains("@" + sensor.name())) continue;
                                 i.button(sensor.name(), Styles.cleart, () -> {
                                     stype("@" + sensor.name());
                                     hide.run();
@@ -298,6 +408,14 @@ public class UnitTracker extends BaseDialog {
 
         private void stype(String text){
             textField.setText(filterType = text);
+            textField.setColor(accept);
+            textUpdated(true);
+        }
+
+        private void textUpdated(boolean verified){ // if it has been checked AND is valid
+            boolean valid = verified || fieldValidator.get(textField.getText());
+            accessVariable = valid ? constants.get(constants.get(textField.getText())) : null; // uh? is there a better way
+            //Log.debug("Updated as @, prev ID: @ (@), current ID: @ (@)", textField.getText(), prevId, prevId == -1 ? "null" : constants.get(prevId), accessVariable, accessVariable == -1 ? "null" : constants.get(accessVariable));
         }
     }
 }
