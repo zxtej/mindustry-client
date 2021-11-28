@@ -5,6 +5,7 @@ import arc.func.*
 import arc.math.geom.*
 import arc.scene.Element
 import arc.scene.event.*
+import arc.scene.style.*
 import arc.scene.ui.*
 import arc.scene.ui.layout.*
 import arc.struct.Seq
@@ -41,7 +42,12 @@ class UnitLog (var unit: Unit){
     private val typeId = type.id.toInt()
     private var bornTime: Instant = Instant.EPOCH
     private var deathTime: Instant = Instant.EPOCH
-    private lateinit var view: Button
+    lateinit var view: Button
+    var viewFollowing: Boolean = false
+        set(follow){
+            view.style = if (follow) followingStyle else Styles.cleari
+            field = follow
+        }
     private lateinit var dudView: Element
     private lateinit var updateCons: Cons<Cell<Button>>
     private val senseSnapshotString: StringBuilder = StringBuilder("");
@@ -66,6 +72,7 @@ class UnitLog (var unit: Unit){
         var viewHeight: Float = 0f
         val coordsRegex: Regex = "(\\([\\d.]*, [\\d.]*\\)) accessed by".toRegex()
         const val iconSize = 64f
+        lateinit var followingStyle: Button.ButtonStyle
         init {
             Events.on(EventType.UnitDeadEvent::class.java) {
                 die(it.unit, Instant.now())
@@ -74,14 +81,25 @@ class UnitLog (var unit: Unit){
             Events.on(EventType.UnitDespawnEvent::class.java) {
                 despawn(it.unit, Instant.now())
             }
+
+            Events.on(EventType.ClientLoadEvent::class.java) {
+                followingStyle = ImageButton.ImageButtonStyle(Styles.cleari)
+                followingStyle.up = (Tex.whiteui as TextureRegionDrawable).tint(0x45/255f, 0x45/255f, 0f, 1f) //0x454545 for white up
+                followingStyle.over = (Tex.whiteui as TextureRegionDrawable).tint(0x80/255f,0x80/255f, 0f, 1f)
+                followingStyle.down = followingStyle.over
+            }
         }
 
         private fun die(unit: Unit, time: Instant) {
-            trackedUnits.get(unit.type.id.toInt()).get(unit.id)?.die(time) ?: return
+            synchronized (trackedUnits) {
+                trackedUnits.get(unit.type.id.toInt()).get(unit.id)?.die(time) ?: return
+            }
         }
 
         private fun despawn(unit: Unit, time: Instant) {
-            trackedUnits.get(unit.type.id.toInt()).get(unit.id)?.despawn(time) ?: return
+            synchronized (trackedUnits) {
+                trackedUnits.get(unit.type.id.toInt()).get(unit.id)?.despawn(time) ?: return
+            }
         }
 
         fun update() {
@@ -96,22 +114,26 @@ class UnitLog (var unit: Unit){
     }
 
     fun die(time: Instant) {
-        update()
-        deathTime = time
-        if(prevController !== controller || (unit !== Nulls.unit && (prevController as? LogicAI)?.controller?.lastAccessed !== (controller as? LogicAI)?.controller?.lastAccessed)){
-            interactor = unit.toInteractor()
-            prevController = controller
+        synchronized (this) {
+            update()
+            deathTime = time
+            if (prevController !== controller || (unit !== Nulls.unit && (prevController as? LogicAI)?.controller?.lastAccessed !== (controller as? LogicAI)?.controller?.lastAccessed)) {
+                interactor = unit.toInteractor()
+                prevController = controller
+            }
+            unit = Nulls.unit
         }
-        unit = Nulls.unit
     }
 
     fun despawn(time: Instant) {
-        prevController = controller
-        x = unit.x
-        y = unit.y
-        flag = unit.flag
-        deathTime = time
-        unit = Nulls.unit
+        synchronized (this) {
+            prevController = controller
+            x = unit.x
+            y = unit.y
+            flag = unit.flag
+            deathTime = time
+            unit = Nulls.unit
+        }
     }
 
     fun update() {
@@ -129,15 +151,6 @@ class UnitLog (var unit: Unit){
     }
 
     fun sense(v: Any) : Double {
-//        if(v is Content) return unit.sense(v)
-//        if(v is LAccess){
-//            if(unit == Nulls.unit) return nullSense(v)
-//            val value: Any = unit.senseObject(v)
-//            return if(value == Senseable.noSensed){
-//                unit.sense(v)
-//            } else value.hashCode().toDouble()
-//        }
-//        return 0.0
         if(v is Content) return unit.sense(v)
         if(v !is LAccess) return 0.0
         synchronized (this) {
@@ -170,7 +183,7 @@ class UnitLog (var unit: Unit){
         synchronized (senseSnapshotString) {
             senseSnapshotString.clear()
             for (i in 0 until senseSnapshot.size) {
-                senseSnapshotString.append(ui.unitTracker.sortEntriesTemp.get(i).accessVariable.name).append(": ")
+                senseSnapshotString.append(ui.unitTracker.sortEntriesTemp.get(i).getAccessVariable().name).append(": ")
                     .append((senseSnapshot.get(i) * 100f + 0.5f).toInt().div(100f)).append("\n")
             }
             senseSnapshotString.removeSuffix("\n")
@@ -245,11 +258,12 @@ class UnitLog (var unit: Unit){
             t.update { frame: Button ->
                 if (frame.height > viewHeight) viewHeight = frame.height
                 t.minHeight(viewHeight)
-                val bottom = frame.localToStageCoordinates(Tmp.v1.set(0f, 0f)) //bottom left
-                frame.touchable { if (bottom.y + frame.height < 0 || bottom.y > Core.graphics.height) Touchable.disabled else Touchable.enabled }
+                Tmp.v2.set(frame.localToStageCoordinates(Tmp.v1.set(0f, 0f))) //bottom left
+                frame.touchable { if (Tmp.v2.y + frame.height < 0 || Tmp.v2.y > Core.graphics.height) Touchable.disabled else Touchable.enabled }
             }
         }
 
+        //clickedCons = Cons { t: Button -> t.clicked { if (Core.input.ctrl()) viewFollowing = !viewFollowing } }
         return Pair(logTable.add(view), updateCons)
     }
 }

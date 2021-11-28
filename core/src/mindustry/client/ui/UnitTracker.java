@@ -43,6 +43,8 @@ public class UnitTracker extends BaseDialog {
     public int entries = 0;
     private final boolean[] rebuild = {false}, sorting = {false};
     private final long[] lastSortTime = {0L};
+    @Nullable public UnitLog followedLog = null;
+    private Sort threadSort = new Sort();
 
     public Table logTable;
     {
@@ -60,6 +62,7 @@ public class UnitTracker extends BaseDialog {
                         //TODO: avoid recreating this from scratch all the time
                         pair.first.self(it -> {
                             //do something to it
+                            it.get().clicked(() -> { if(Core.input.ctrl()) setFollowedLog(log.getViewFollowing() ? null : log); });
                             orig.get(it);
                         });
 
@@ -70,6 +73,13 @@ public class UnitTracker extends BaseDialog {
                 }
                 synchronized (rebuild) {
                     rebuild[0] = false;
+                }
+                if(followedLog != null && logTable.hasParent() && logTable.parent instanceof ScrollPane pane) {
+                    Core.app.post(() -> {
+                        float y = followedLog.getView().localToParentCoordinates(Tmp.v1.set(0, followedLog.getView().getHeight()/2f)).y;
+                        pane.setScrollY(logTable.getHeight() - y - pane.getHeight()/2f);
+                        pane.updateVisualScroll();
+                    });
                 }
             };
 
@@ -105,7 +115,10 @@ public class UnitTracker extends BaseDialog {
                 if(sorting[0]) return;
                 sorting[0] = true;
             }
-            shownTrackedUnitsTemp.clear();
+            synchronized (lastSortTime) {
+                lastSortTime[0] = Time.millis();
+            }
+            Log.debug(Time.millis());
             synchronized (sortEntries) {
 //                if(sortEntries.isEmpty()){
 //                    synchronized (sorting) {
@@ -115,9 +128,16 @@ public class UnitTracker extends BaseDialog {
 //                } //maybe if the thing actually gets that optimized
                 sortEntriesTemp.set(sortEntries);
             }
-            sortEntriesTemp.filter(t -> t.accessVariable != null);
+            sortEntriesTemp.filter(t -> t.getAccessVariable() != null);
+            //Seq<UnitLog> shownTrackedUnitsTemp = new Seq<>(UnitLog.class);
+            shownTrackedUnitsTemp.clear();
             synchronized (trackedUnits) {
-                trackedUnits.each(map -> shownTrackedUnitsTemp.addAll(map.values()));
+                for (int i=0; i < trackedUnits.size; i++){
+                    synchronized (selectedTags) {
+                        if (!selectedTags.isEmpty() && !selectedTags.get(i)) continue;
+                    }
+                    shownTrackedUnitsTemp.addAll(trackedUnits.get(i).values());
+                }
             }
             shownTrackedUnitsTemp.filter(it -> {
                 // filtered unit types
@@ -129,18 +149,18 @@ public class UnitTracker extends BaseDialog {
             shownTrackedUnitsTemp.each(ul -> ul.senseSnapshot.setSize(sortEntriesTemp.size));
             for(int i = 0; i < sortEntriesTemp.size; i++){
                 int fi = i;
-                shownTrackedUnitsTemp.each(ul -> ul.senseSnapshot.set(fi, ul.sense(sortEntriesTemp.get(fi).accessVariable.objval)));
+                shownTrackedUnitsTemp.each(ul -> ul.senseSnapshot.set(fi, ul.sense(sortEntriesTemp.get(fi).getAccessVariable().objval)));
             }
             shownTrackedUnitsTemp.each(UnitLog::updateSnapshotText);
             try {
-                shownTrackedUnitsTemp.sort((a, b) -> {
+                threadSort.sort(shownTrackedUnitsTemp.items, (a, b) -> {
                     for (int i = 0; i < sortEntriesTemp.size; i++) {
                         int diff = a.senseSnapshot.get(i).compareTo(b.senseSnapshot.get(i));
                         if (diff == 0) continue;
                         return diff;
                     }
                     return 0;
-                });
+                }, 0, shownTrackedUnitsTemp.size);
             } catch (Exception e){
                 Log.err(e);
             }
@@ -152,9 +172,6 @@ public class UnitTracker extends BaseDialog {
             }
             synchronized (sorting) {
                 sorting[0] = false;
-            }
-            synchronized (lastSortTime) {
-                lastSortTime[0] = Time.millis();
             }
         };
     }
@@ -173,18 +190,17 @@ public class UnitTracker extends BaseDialog {
 
     @Override
     public void act(float delta) {
-        super.act(delta);
         synchronized (rebuild) {
             if (rebuild[0]) rebuildPane.run();
         }
         synchronized (lastSortTime) {
             synchronized (sorting) {
                 if (!sorting[0] && Time.timeSinceMillis(lastSortTime[0]) >= Core.settings.getInt("trackertime", 1000)) {
-                    lastSortTime[0] = Time.millis();
                     clientThread.taskQueue.post(sortCriteria);
                 }
             }
         }
+        super.act(delta);
     }
 
     void setup(){
@@ -231,12 +247,26 @@ public class UnitTracker extends BaseDialog {
         }).grow().scrollX(false);
     }
 
+    public void setFollowedLog(@Nullable UnitLog next){
+        if(followedLog != null) followedLog.setViewFollowing(false);
+        if(next != null) next.setViewFollowing(true);
+        followedLog = next;
+    }
+
     public class SortEntry extends Table{
         String filterType = "";
         TextField textField;
         int selected = 0;
         int index;
-        public LExecutor.Var accessVariable = null;
+        public volatile LExecutor.Var accessVariable = null;
+
+        public synchronized void setAccessVariable(LExecutor.Var av){
+            this.accessVariable = av;
+        }
+
+        public synchronized LExecutor.Var getAccessVariable(){
+            return accessVariable;
+        }
 
         private void build(){
             defaults().pad(0f, 5f, 0f, 5f);
@@ -414,7 +444,7 @@ public class UnitTracker extends BaseDialog {
 
         private void textUpdated(boolean verified){ // if it has been checked AND is valid
             boolean valid = verified || fieldValidator.get(textField.getText());
-            accessVariable = valid ? constants.get(constants.get(textField.getText())) : null; // uh? is there a better way
+            setAccessVariable(valid ? constants.get(constants.get(textField.getText())) : null); // uh? is there a better way
             //Log.debug("Updated as @, prev ID: @ (@), current ID: @ (@)", textField.getText(), prevId, prevId == -1 ? "null" : constants.get(prevId), accessVariable, accessVariable == -1 ? "null" : constants.get(accessVariable));
         }
     }

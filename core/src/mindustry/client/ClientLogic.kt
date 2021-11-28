@@ -33,6 +33,7 @@ class ClientLogic {
                 Vars.processorConfigMap.clear()
                 Vars.frozenPlans.clear()
                 trackedUnits.each { it.clear() }
+                Vars.ui.unitTracker.followedLog = null
             } // FINISHME: Why is this even in the player class? It creates a queue for each player even tho only one is used...
             lastJoinTime = Time.millis()
             PowerInfo.initialize()
