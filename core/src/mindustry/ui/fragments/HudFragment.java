@@ -263,6 +263,7 @@ public class HudFragment extends Fragment{
                 info.touchable = Touchable.disabled;
                 info.top().left().margin(4).visible(() -> Core.settings.getBool("fps") && shown);
                 IntFormat fps = new IntFormat("fps");
+                IntFormat simtime = new IntFormat("simtime");
                 IntFormat ping = new IntFormat("ping");
                 IntFormat tps = new IntFormat("tps");
                 IntFormat mem = new IntFormat("memory");
@@ -278,6 +279,9 @@ public class HudFragment extends Fragment{
                 info.row();
 
                 info.label(() -> fps.get(Core.graphics.getFramesPerSecond())).left().style(Styles.outlineLabel).name("fps");
+                info.row();
+
+                info.label(() -> simtime.get(ClientVars.logicTime, ClientVars.drawTime)).left().style(Styles.outlineLabel).name("simtime");
                 info.row();
 
                 info.label(() -> plans.get(player.unit().plans.size)).left() // Buildplan count

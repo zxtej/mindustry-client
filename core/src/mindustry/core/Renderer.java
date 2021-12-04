@@ -26,6 +26,7 @@ import mindustry.world.blocks.storage.CoreBlock.*;
 
 import static arc.Core.*;
 import static mindustry.Vars.*;
+import static mindustry.client.ClientVars.*;
 
 public class Renderer implements ApplicationListener{
     /** These are global variables, for headless access. Cached. */
@@ -129,6 +130,7 @@ public class Renderer implements ApplicationListener{
 
     @Override
     public void update(){
+        long tStart = Time.nanos();
         Color.white.set(1f, 1f, 1f, 1f);
 
 //        float dest = Mathf.clamp(Mathf.round(targetscale, 0.5f), minScale(), maxScale());
@@ -188,6 +190,15 @@ public class Renderer implements ApplicationListener{
 
             camera.position.sub(camShakeOffset);
         }
+        long tEnd = Time.nanos();
+        if(tEnd - drawCounterStart >= 1000000000){
+            drawTime = (int) (totalDrawTime / Time.nanosPerMilli / drawFrames);
+            drawFrames = 0;
+            totalDrawTime = 0;
+            drawCounterStart = tEnd;
+        }
+        totalDrawTime += tEnd - tStart;
+        drawFrames++;
     }
 
     /** @return whether a launch/land cutscene is playing. */

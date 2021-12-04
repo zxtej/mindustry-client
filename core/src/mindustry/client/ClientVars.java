@@ -12,6 +12,9 @@ public class ClientVars {
     // Misc
     public static short silentTrace; // How many traces to do silently (this is pretty 0head but shh)
     public static IntMap<Object> processorConfigs = new IntMap<>();
+    // Misc: enhanced FPS counter
+    public static int drawTime = 0, logicTime = 0,  drawFrames = 1, logicFrames = 1;
+    public static long drawCounterStart = Time.nanos(), logicCounterStart = Time.nanos(), totalDrawTime = 0, totalLogicTime = 0;
 
     // Config Queue
     @NotNull public static Queue<ConfigRequest> configs = new Queue<>();

@@ -366,6 +366,7 @@ public class Logic implements ApplicationListener{
     @Override
     public void update(){
         Events.fire(Trigger.update);
+        long tStart = Time.nanos();
         universe.updateGlobal();
 
         if(Core.settings.modified() && !state.isPlaying()){
@@ -428,6 +429,15 @@ public class Logic implements ApplicationListener{
             if(!configs.isEmpty() && configRateLimit.allow(Administration.Config.interactRateWindow.num() * 1000L, Administration.Config.interactRateLimit.num())){
                 configs.removeFirst().run();
             }
+            long tEnd = Time.nanos();
+            if(tEnd - logicCounterStart >= 1000000000){
+                logicTime = (int) (totalLogicTime / Time.nanosPerMilli / logicFrames);
+                logicFrames = 0;
+                totalLogicTime = 0;
+                logicCounterStart = tEnd;
+            }
+            totalLogicTime += tEnd - tStart;
+            logicFrames++;
         }
     }
 
